@@ -1,0 +1,99 @@
+{
+  "dbms": {
+    "cassandra": {
+      "sql_csv": {
+        "command": "echo \"copy $(cat {infile}) to '{outfile}' with header=true;\" > {infile}; docker run --rm -v /tmp:/tmp cassandra cqlsh {dbserver} {port} -k {dbname} -f {infile}"
+      },
+      "sql_cli": {
+        "command": "docker run --rm -v /tmp:/tmp cassandra sh -c 'cqlsh {dbserver} {port} -k {dbname} -f {infile} > {outfile} 2>&1'"
+      },
+      "sql_ddl": {
+        "command": "docker run --rm -v /tmp:/tmp cassandra sh -c 'cqlsh {dbserver} {port} -k {dbname} -e \"desc table {objectname}\" > {objectfile} 2>&1'"
+      }
+    },
+    "mongodb": {
+      "sql_csv": {
+        "command": "docker run --rm -v /tmp:/tmp mongo sh -c 'mongoexport -h {dbserver}:{port} -d {dbname} -c $(cat {infile} | tr \"\\r\" \" \") -o {outfile}'"
+      },
+      "sql_cli": {
+        "command": "docker run --rm -v /tmp:/tmp mongo sh -c 'mongo --quiet --host={dbserver}:{port} {dbname} < {infile} > {outfile} 2>&1'",
+        "header": [
+          "rs.slaveOk();",
+          "DBQuery.shellBatchSize = 10000;",
+          "DBQuery.prototype._prettyShell = true;"
+        ],
+        "footer": []
+      }
+    },
+    "postgresql": {
+      "sql_csv": {
+        "command": "PGCONNECT_TIMEOUT=3 PGPASSWORD='{password}' psql -P pager=off -v ON_ERROR_STOP=1 -h {dbserver} -U {loginname} -p {port} -d {dbname} -f {infile} > {outfile} 2>&1",
+        "header": [
+          "COPY",
+          "("
+        ],
+        "footer": [
+          ")",
+          "TO STDOUT",
+          "WITH CSV HEADER"
+        ]
+      },
+      "sql_cli": {
+        "command": "PGCONNECT_TIMEOUT=3 PGPASSWORD='{password}' psql -P pager=off -v ON_ERROR_STOP=1 -h {dbserver} -U {loginname} -p {port} -d {dbname} -f {infile} > {outfile} 2>&1"
+      },
+      "sql_ddl": {
+        "command": "{scriptpath}/ddl_postgresql.sh -h {dbserver} -p {port} -U {loginname} -P '{password}' -d {dbname} -o {objectname} > {objectfile} 2>&1"
+      }
+    },
+    "mysql": {
+      "sql_csv": {
+        "command": ""
+      },
+      "sql_cli": {
+        "command": "MYSQL_PWD='{password}' mysql --ssl-mode=DISABLED -h {dbserver} -u {loginname} -P {port} -t -D {dbname} < {infile} > {outfile} 2>&1"
+      },
+      "sql_ddl": {
+        "command": "{scriptpath}/ddl_mysql.sh -h {dbserver} -p {port} -U {loginname} -P '{password}' -d {dbname} -o {objectname} > {objectfile} 2>&1"
+      }
+    },
+    "oracle": {
+      "sql_csv": {
+        "command": "LD_LIBRARY_PATH=$HOME/src/oracle/instantclient_19_6 $HOME/src/oracle/instantclient_19_6/sqlplus -S {loginname}/'{password}'@{dbserver} @{infile} > {outfile} 2>&1",
+        "header": [
+          "set feedback off",
+          "set pagesize 10000",
+          "set linesize 32767",
+          "set long 50000",
+          "ALTER SESSION SET NLS_COMP = LINGUISTIC;",
+          "ALTER SESSION SET NLS_SORT = BINARY_CI;",
+          "ALTER SESSION SET CURRENT_SCHEMA = {dbname};",
+          "ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS';",
+          "SET MARK CSV ON QUOTE ON"
+        ],
+        "footer": []
+      },
+      "sql_cli": {
+        "command": "LD_LIBRARY_PATH=$HOME/src/oracle/instantclient_19_6 $HOME/src/oracle/instantclient_19_6/sqlplus -S {loginname}/'{password}'@{dbserver} @{infile} > {outfile} 2>&1",
+        "header": [
+          "set feedback off",
+          "set serveroutput on",
+          "set numwidth 38",
+          "set tab off",
+          "set wrap off",
+          "set pagesize 10000",
+          "set linesize 32767",
+          "set long 50000",
+          "ALTER SESSION SET NLS_COMP = LINGUISTIC;",
+          "ALTER SESSION SET NLS_SORT = BINARY_CI;",
+          "ALTER SESSION SET CURRENT_SCHEMA = {dbname};",
+          "ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS';",
+          "set feedback on"
+        ],
+        "footer": []
+      },
+      "sql_ddl": {
+        "command": "{scriptpath}/ddl_oracle.sh -h {dbserver} -U {loginname} -P '{password}' -d {dbname} -o {objectname} > {objectfile} 2>&1"
+      }
+    }
+  }
+}

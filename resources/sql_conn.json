@@ -1,0 +1,130 @@
+{
+  "Product": {
+    "mysql-example": {
+      "dbms": "mysql",
+      "dbenv": [
+        {
+          "isprod": 1,
+          "alias": "prod-server1",
+          "desc": "prod-server1",
+          "dbserver": "10.10.10.100:3306",
+          "loginname": "vagrant",
+          "password": "vagrant",
+          "dbname": [
+            "tpcc1"
+          ]
+        },
+        {
+          "isprod": 0,
+          "alias": "staging-server2",
+          "desc": "staging-server2",
+          "dbserver": "10.10.10.101:3306",
+          "loginname": "vagrant",
+          "password": "vagrant",
+          "dbname": [
+            "tpcc1"
+          ]
+        }
+      ]
+    },
+    "postgresql-example": {
+      "dbms": "postgresql",
+      "dbenv": [
+        {
+          "isprod": 0,
+          "alias": "staging-server1",
+          "desc": "staging-server1",
+          "dbserver": "10.10.10.100:5432",
+          "loginname": "vagrant",
+          "password": "vagrant",
+          "dbname": [
+            "DB1 : this is DB1",
+            "DB2 : this is DB2"
+          ]
+        }
+      ]
+    },
+    "oracle-example": {
+      "dbms": "oracle",
+      "dbenv": [
+        {
+          "isprod": 0,
+          "alias": "staging-server1",
+          "desc": "staging-server1",
+          "dbserver": "10.10.10.100:1521/sid1",
+          "loginname": "vagrant",
+          "password": "vagrant",
+          "dbname": [
+            "DB1 : this is DB1",
+            "DB2 : this is DB2"
+          ]
+        }
+      ]
+    },
+    "mssql-example": {
+      "dbms": "mssql",
+      "loginname": "vagrant",
+      "password": "vagrant",
+      "dbenv": [
+        {
+          "isprod": 0,
+          "alias": "staging-server1",
+          "desc": "staging-server1",
+          "dbserver": "staging-server1.local"
+        },
+        {
+          "isprod": 1,
+          "alias": "prod-server2",
+          "desc": "prod-server2",
+          "dbserver": "prod-server2.local",
+          "loginname": "vagrantprod",
+          "password": "vagrantprod",
+          "dbname": [
+            "DB1 : this is DB1",
+            "DB2 : this is DB2"
+          ]
+        }
+      ],
+      "dbname": [
+        "DB1 : this is DB1",
+        "DB2 : this is DB2",
+        "DB3 : this is DB3",
+        "DB4 : this is DB4"
+      ]
+    },
+    "cassandra-example": {
+      "dbms": "cassandra",
+      "dbenv": [
+        {
+          "isprod": 0,
+          "alias": "staging-server1",
+          "desc": "staging-server1",
+          "dbserver": "10.10.10.100:9042",
+          "loginname": "vagrant",
+          "password": "vagrant",
+          "dbname": [
+            "DB1 : this is DB1",
+            "DB2 : this is DB2"
+          ]
+        }
+      ]
+    },
+    "mongodb-example": {
+      "dbms": "mongodb",
+      "dbenv": [
+        {
+          "isprod": 0,
+          "alias": "staging-server1",
+          "desc": "staging-server1",
+          "dbserver": "10.10.10.100:27017",
+          "loginname": "vagrant",
+          "password": "vagrant",
+          "dbname": [
+            "DB1 : this is DB1",
+            "DB2 : this is DB2"
+          ]
+        }
+      ]
+    }
+  }
+}
