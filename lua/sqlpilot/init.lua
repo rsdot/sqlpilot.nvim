@@ -315,7 +315,7 @@ function M.sql_adhoc_query_result(sql_run_command_type)--{{{
   local endline, _ = vim.api.nvim_buf_get_mark(0, '>')[1]
   -- print (startline, endline)
   local selected_lines = vim.api.nvim_buf_get_lines(0, startline, endline, false)
-  local query = table.concat(selected_lines,' ')
+  local query = table.concat(selected_lines,'\n')
 
   sql_write_query_to_infile(query)
   sql_execute_command(sql_run_command_type, 'new')
@@ -331,7 +331,7 @@ function M.sql_list_dbobject_attribute(attribute_query, vim_cmd)--{{{
     print("query for " .. attribute_query .." doesn't exist!")
     return nil
   end
-  local query = table.concat(query_lines,' ')
+  local query = table.concat(query_lines,'\n')
 
   local param_gsub = {}
   param_gsub.dbname = M.sqlpilot_dict_command_param.dbname
