@@ -1,6 +1,7 @@
 local util = require("sqlpilot.util")
 local config = require("sqlpilot.config")
 local autocmd = require("sqlpilot.autocmd")
+local keymap = require("sqlpilot.keymap")
 
 local M = {}
 
@@ -22,7 +23,9 @@ local sql_set_sqlpilot_dict_command_param = function(product, dbenv)--{{{
   M.sqlpilot_dict_command_param.isprod    = dbenv.isprod
   M.sqlpilot_dict_command_param.dbserver  = dbenv.dbserver:find(':') ~= nil and dbenv.dbserver:match('(.+):') or dbenv.dbserver
   M.sqlpilot_dict_command_param.port      = dbenv.dbserver:find(':') ~= nil and dbenv.dbserver:match(':(%d+)') or ""
+
   autocmd.sql_create_autocmd(M.sqlpilot_dict_command_param.dbms)
+  keymap.sql_remove_invalid_whichkey_entries()
 end--}}}
 
 function M.sql_print_sqlpilot_dict_command_param(flag)--{{{
@@ -239,7 +242,7 @@ local sql_write_query_to_infile = function(query)--{{{
   util.string_to_file(query, M.sqlpilot_dict_command_param.infile)
 end--}}}
 
-local function sql_load_query_result_to_buffer(bufno, param_gsub)
+local function sql_load_query_result_to_buffer(bufno, param_gsub)-- {{{
   -- for lualine inactive buffer
   vim.b.sqlpilot_display_result = string.format("%s.%s ∞ %s ∞",
     M.sqlpilot_dict_command_param.alias,
@@ -266,7 +269,7 @@ local function sql_load_query_result_to_buffer(bufno, param_gsub)
   end
 
   vim.api.nvim_buf_set_lines(bufno, 0, -1, false, array)
-end
+end-- }}}
 
 local sql_execute_command = function(sql_run_command_type, vim_cmd, param_gsub)--{{{
   local sql_run_command = M.dict_run.dbms[M.sqlpilot_dict_command_param.dbms][sql_run_command_type].command

@@ -9,14 +9,19 @@ M.dict_conn  = {}
 M.dict_query = {}
 M.dict_run   = {}
 M.dict_registers = {}
+M.dict_which_key_registers = {}
 
 local defaults = {
   sql_conn  = M.plugin_path.."/resources/sql_conn.json",
   sql_query = M.plugin_path.."/resources/sql_query.json",
   sql_run   = M.plugin_path.."/resources/sql_run.json",
   registers = {
-    cmd   = "y", -- store last used cmd
-    query = "z"  -- store last used query
+    cmd   = "y", -- default vim register to store last used cmd
+    query = "z"  -- default vim register to store last used query
+  },
+  which_key_registers = {
+    normal = "f", -- default which-key normal mode key register
+    visual = "f", -- default which-key visual mode key register
   }
 }
 
@@ -28,6 +33,7 @@ function M.setup(options)
   M.dict_query     = util.jsonfile_to_dict(M.options.sql_query)
   M.dict_run       = util.jsonfile_to_dict(M.options.sql_run)
   M.dict_registers = M.options.registers
+  M.dict_which_key_registers = M.options.which_key_registers
 
   if M.dict_conn == nil then
     print("M.dict_conn is nil")
@@ -35,6 +41,7 @@ function M.setup(options)
   end
 
   keymap.sql_set_keymap()
+  keymap.sql_set_whichkey_initial_keymap()
 end
 
 M.__index = function(t, k)

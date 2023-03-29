@@ -10,7 +10,7 @@ A neovim plugin for navigating database schemas and executing custom queries acr
   <ol>Async execution of query without blocking editing mode.</ol>
 - 🌟 **Featured**:
   <ol>
-  <li>Bundled with common used queries supportting Oracle, MySQL, PostgreSQL, Aurora MySQL/PostgreSQL, MongoDB, Cassandra, SQL Server (<I>comming soon</I>)</li>
+  <li>Bundled with common used queries supporting Oracle, MySQL, PostgreSQL, Aurora MySQL/PostgreSQL, MongoDB, Cassandra, SQL Server (<I>coming soon</I>)</li>
   <li>Text expander in Insert mode for dozens of SQL keywords.</li>
   <li>Underline query and CLI command executed with actual parameter values can be easily obtained for troubleshooting.</li>
   <li>Display current connected DBs and snapshot of execution time in previous run result buffer window together with <a href="https://github.com/nvim-lualine/lualine.nvim">lualine</a>.</li>
@@ -21,6 +21,9 @@ A neovim plugin for navigating database schemas and executing custom queries acr
 
 ## Installation
 
+#### prerequisite [which-key.nvim](https://github.com/folke/which-key.nvim)
+
+`sqlpilot.nvim` is integrated with `which-key.nvim` to enable/disable common used queries shortcut keys dynamically for supported DBs in normal and visual modes.
 
 #### with [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
@@ -31,6 +34,7 @@ A neovim plugin for navigating database schemas and executing custom queries acr
     ```lua
     use {
       "rsdot/sqlpilot.nvim",
+      requires = "folke/which-key.nvim",
       config = function()
         require("sqlpilot").setup {
           sql_conn  = vim.fn.glob("~").."/projects/xxxx/sqlpilot.nvim/resources/sql_conn.json", -- required
@@ -42,88 +46,7 @@ A neovim plugin for navigating database schemas and executing custom queries acr
 
 ## Configuration
 
-1. Shortcut keys with [which-key.nvim](https://github.com/folke/which-key.nvim) is highly recommended to use with `sqlpilot.nvim` together, see example of pre-defined shortcut keys for dozens of bundled queries.
-
-    <details><summary>Example of setup with which-key.nvim</summary>
-
-    ```lua
-    local setup = {
-      ...
-    }
-
-    local n_opts = {
-      mode = "n", -- NORMAL mode
-      prefix = "<leader>",
-      buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
-      silent = true, -- use `silent` when creating keymaps
-      noremap = true, -- use `noremap` when creating keymaps
-      nowait = true, -- use `nowait` when creating keymaps
-    }
-
-    local v_opts = {
-      mode = "v", -- visual mode
-      prefix = "<leader>",
-      buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
-      silent = true, -- use `silent` when creating keymaps
-      noremap = true, -- use `noremap` when creating keymaps
-      nowait = true, -- use `nowait` when creating keymaps
-    }
-
-    local n_mappings = {
-      ...
-      f = {
-        name = "Sql ",
-        ["w"] = { "<Plug>(sql_create_tempfile)", " create temp file" },
-        ["a"] = { "<Plug>(sql_selecttabledata_all)", " select all" },
-        ["z"] = { "<Plug>(sql_selecttabledata_top)", " select top" },
-        ["c"] = { "<Plug>(sql_selecttablecount)", " select count" },
-        ["`"] = { "<Plug>(sql_desc)", " desc" },
-        ["1"] = { "<Plug>(sql_schemaobject)", " schema" },
-        ["!"] = { "<Plug>(sql_schemaobject_enhanced)", " schema enhanced" },
-        ["2"] = { "<Plug>(sql_programmableobject)", " progobj" },
-        ["@"] = { "<Plug>(sql_programmableobject_enhanced)", " progobj enhanced" },
-        ["3"] = { "<Plug>(sql_listcolumns)", " columns" },
-        ["4"] = { "<Plug>(sql_descindex)", " desc index" },
-        ["5"] = { "<Plug>(sql_scriptout_object)", " scriptout" },
-        ["%"] = { "<Plug>(sql_scriptout_objects_tofolder)", " scriptout tofolder" },
-        ["6"] = { "<Plug>(sql_contextinfo)", " contextinfo" },
-        ["7"] = { "<Plug>(sql_listjobs)", " job" },
-        ["&"] = { "<Plug>(sql_scriptout_job)", " scriptout job" },
-        ["8"] = { "<Plug>(sql_listfktables)", " fktables" },
-        ["9"] = { "<Plug>(sql_listmetadata)", " metadata" },
-        ["0"] = { "<Plug>(sql_referencedby)", " referencedby" },
-        [";"] = { "<Plug>(sql_select_dbenv)", " list db env" },
-        [":"] = { "<Plug>(sql_change_dbenv)", " change env" },
-        [","] = { "<Plug>(sql_select_db)", " list env db" },
-        ["."] = { "<Plug>(sql_reset_dbenv)", " reset env" },
-
-        F = {
-          name = "Sql format ",
-          ["/"] = { "<Plug>(sql_format_slash_toggle)", " /" },
-          ["\\"] = { "<Plug>(sql_format_slash_toggle)", " \\" },
-        },
-      },
-      ...
-    }
-
-    local v_mappings = {
-      ...
-      f = {
-        name = "Sql ",
-        ["d"] = { "<Plug>(sql_adhoc_query_result_csv)", " run csv" },
-        ["f"] = { "<Plug>(sql_adhoc_query_result_cli_raw)", " run query" },
-      },
-      ...
-    }
-
-    which_key.setup(setup)
-    which_key.register(n_mappings, n_opts)
-    which_key.register(v_mappings, v_opts)
-    ```
-
-    </details>
-
-2. Integration with [lualine](https://github.com/nvim-lualine/lualine.nvim) to display current connected DBs and snapshot of execution time in previous run result buffer window
+1. Integration with [lualine](https://github.com/nvim-lualine/lualine.nvim) to display current connected DBs and snapshot of execution time in previous run result buffer window
 
     <details><summary>Example of setup with lualine</summary>
 
@@ -309,8 +232,12 @@ use {
       sql_query = vim.fn.glob("~").."/projects/xxxx/sqlpilot.nvim/resources/sql_query.json", -- overwrite default
       sql_run   = vim.fn.glob("~").."/projects/xxxx/sqlpilot.nvim/resources/sql_run.json",   -- overwrite default
       registers = {
-        cmd   = "y", -- store last used cmd                                                -- change to other register if needed
-        query = "z"  -- store last used query                                              -- change to other register if needed
+        cmd   = "y", -- default vim register to store last used cmd                          -- change to other register if needed
+        query = "z"  -- default vim register to store last used query                        -- change to other register if needed
+      },
+      which_key_registers = {
+        normal = "f", -- default which-key normal mode key register                          -- change to avoid conflicting with existing
+        visual = "f", -- default which-key visual mode key register                          -- change to avoid conflicting with existing
       }
     }
   end
