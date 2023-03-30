@@ -194,7 +194,7 @@ function M.sql_change_dbenv()--{{{
     M.sqlpilot_dict_command_param.loginname)
 
   vim.cmd("redraw!")
-	print("Current Setting: "..message)
+  print("Current Setting: "..message)
 end--}}}
 
 function M.sql_reset_dbenv()--{{{
@@ -254,7 +254,7 @@ local function sql_load_query_result_to_buffer(bufno, param_gsub)-- {{{
     os.remove(M.sqlpilot_dict_command_param.outfile)
   end
 
-	if #array == 0 then
+  if #array == 0 then
     array = {
       string.format("<<<empty, cmd stored in reg: %s, query stored in reg: %s>>>"
         ,tostring(M.dict_registers.cmd)
@@ -284,9 +284,9 @@ local sql_execute_command = function(sql_run_command_type, vim_cmd, param_gsub)-
   vim.api.nvim_command(vim_cmd)
   local bufno = vim.api.nvim_get_current_buf()
 
-	vim.fn.jobstart(sql_run_command, {
-		stdout_buffered = true,
-		on_stdout = function(jobid, _, _)
+  vim.fn.jobstart(sql_run_command, {
+    stdout_buffered = true,
+    on_stdout = function(jobid, _, _)
       local array = {
         string.format("<<<[%d] waiting for run result, kill by :call jobstop(%d), cmd stored in reg: %s, query stored in reg: %s>>>"
           ,jobid
@@ -296,10 +296,10 @@ local sql_execute_command = function(sql_run_command_type, vim_cmd, param_gsub)-
       }
       vim.api.nvim_buf_set_lines(bufno, 0, -1, false, array)
     end,
-		on_exit = function(_, _, _)
+    on_exit = function(_, _, _)
       sql_load_query_result_to_buffer(bufno, param_gsub)
     end,
-	})
+  })
 end--}}}
 
 function M.sql_adhoc_query_result(sql_run_command_type)--{{{

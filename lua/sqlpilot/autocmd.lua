@@ -22,7 +22,7 @@ function M.sql_create_autocmd(dbms)-- {{{
     if vim.b.match_words == nil then
       vim.b.match_words = [[{:},(:),[:],\(\<CASE\>\|\<BEGIN\>\)\(\s\+TRAN\)\@!:\<WHEN\>:\<THEN\>:\<END\>,\(\<UPDATE\>\|\<SELECT\>\|\<DELETE\>\):\<FROM\>:\<WHERE\>,\<INSERT\>:\<VALUES\>]]
     end
-    vim.api.nvim_set_option_value("equalprg", "sql-formatter -l "..language, { scope = "local" })
+    vim.api.nvim_set_option_value("equalprg", "sql-formatter -l "..language, { buf = 0 })
 
     keymap.sql_text_expander()
   end

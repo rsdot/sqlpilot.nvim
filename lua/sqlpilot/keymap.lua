@@ -1,7 +1,7 @@
 local status_ok, which_key = pcall(require, "which-key")
 if not status_ok then
   vim.api.nvim_err_writeln "which-key is not installed; which is prerequisite!"
-	return
+  return
 end
 
 local M = {}
@@ -57,12 +57,12 @@ local n_opts = {-- {{{
 }-- }}}
 
 local v_opts = {-- {{{
-	mode = "v", -- visual mode
-	prefix = "<leader>",
-	buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
-	silent = true, -- use `silent` when creating keymaps
-	noremap = true, -- use `noremap` when creating keymaps
-	nowait = true, -- use `nowait` when creating keymaps
+  mode = "v", -- visual mode
+  prefix = "<leader>",
+  buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
+  silent = true, -- use `silent` when creating keymaps
+  noremap = true, -- use `noremap` when creating keymaps
+  nowait = true, -- use `nowait` when creating keymaps
 }-- }}}
 
 local function n_reg()-- {{{
