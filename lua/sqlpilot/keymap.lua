@@ -1,34 +1,35 @@
 local status_ok, which_key = pcall(require, "which-key")
 if not status_ok then
-	return
   vim.api.nvim_err_writeln "which-key is not installed; which is prerequisite!"
+	return
 end
 
 local M = {}
 
+-- locals {{{
 local ks = vim.keymap.set
 local display_icon = ""
 
-local whichkey_initial_map = {
+local whichkey_initial_map = {-- {{{
   create_tempfile  = { display = display_icon.." create temp file", sql_mapping = "w" },
   scriptout_object = { display = display_icon.." scriptout",        sql_mapping = "5" },
   select_dbenv     = { display = display_icon.." list db env",      sql_mapping = ";" },
   change_dbenv     = { display = display_icon.." change env",       sql_mapping = ":" },
   select_db        = { display = display_icon.." list env db",      sql_mapping = "," },
   reset_dbenv      = { display = display_icon.." reset env",        sql_mapping = "." },
-}
+}-- }}}
 
-local whichkey_initial_v_map = {
+local whichkey_initial_v_map = {-- {{{
   adhoc_query_result_csv     = { display = display_icon.." run csv",   sql_mapping = "d", sql_run_command_type = "sql_csv" },
   adhoc_query_result_cli_raw = { display = display_icon.." run query", sql_mapping = "f", sql_run_command_type = "sql_cli" },
-}
+}-- }}}
 
-local whichkey_initial_format_map = {
+local whichkey_initial_format_map = {-- {{{
   _forward  = { display = display_icon.." /",  sql_mapping = "/" },
   _backword = { display = display_icon.." \\", sql_mapping = "\\" },
-}
+}-- }}}
 
-local whichkey_dbobject_attribute_map = {
+local whichkey_dbobject_attribute_map = {-- {{{
   selecttabledata_all         = { display = display_icon.." select all",            sql_mapping = "a", vim_cmd = "new"    },
   selecttabledata_top         = { display = display_icon.." select top 100",        sql_mapping = "z", vim_cmd = "new"    },
   selecttablecount            = { display = display_icon.." select count",          sql_mapping = "c", vim_cmd = "new"    },
@@ -44,33 +45,33 @@ local whichkey_dbobject_attribute_map = {
   listfktables                = { display = display_icon.." show fktables",         sql_mapping = "8", vim_cmd = "new"    },
   listmetadata                = { display = display_icon.." show metadata",         sql_mapping = "9", vim_cmd = "new"    },
   referencedby                = { display = display_icon.." show referencedby",     sql_mapping = "0", vim_cmd = "new"    },
-}
+}-- }}}
 
-local n_opts = {
+local n_opts = {-- {{{
   mode = "n", -- NORMAL mode
   prefix = "<leader>",
   buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
   silent = true, -- use `silent` when creating keymaps
   noremap = true, -- use `noremap` when creating keymaps
   nowait = true, -- use `nowait` when creating keymaps
-}
+}-- }}}
 
-local v_opts = {
+local v_opts = {-- {{{
 	mode = "v", -- visual mode
 	prefix = "<leader>",
 	buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
 	silent = true, -- use `silent` when creating keymaps
 	noremap = true, -- use `noremap` when creating keymaps
 	nowait = true, -- use `nowait` when creating keymaps
-}
+}-- }}}
 
-local function n_reg()
+local function n_reg()-- {{{
   return require("sqlpilot.config").dict_which_key_registers.normal
-end
+end-- }}}
 
-local function v_reg()
+local function v_reg()-- {{{
   return require("sqlpilot.config").dict_which_key_registers.visual
-end
+end-- }}}
 
 local function which_key_n_deregister(object_attribute, prefix, mode)-- {{{
   local m = whichkey_dbobject_attribute_map[object_attribute]
@@ -91,6 +92,7 @@ local function which_key_n_register(object_attribute)-- {{{
 
   which_key.register(n_mappings, n_opts)
 end-- }}}
+-- }}}
 
 function M.sql_remove_invalid_whichkey_entries()-- {{{
   local config = require("sqlpilot.config")

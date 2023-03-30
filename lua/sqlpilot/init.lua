@@ -7,12 +7,6 @@ local M = {}
 
 M.sqlpilot_dict_command_param = {}
 
-function M.reset()--{{{
-  require("plenary.reload").reload_module("sqlpilot")
-  require("sqlpilot").setup()
-  M.sqlpilot_dict_command_param.dbms = nil
-end--}}}
-
 -- DB Connection settings
 --{{{
 local sql_set_sqlpilot_dict_command_param = function(product, dbenv)--{{{
@@ -364,13 +358,6 @@ function M.sql_scriptout_object()--{{{
   sql_execute_command("sql_ddl", 'new', param_gsub)
 end--}}}
 
-function M.sql_scriptout_objects_tofolder()--{{{
-  if M.sqlpilot_dict_command_param["dbms"] == nil then
-    M.sql_select_dbenv()
-  end
-
-  -- TODO
-end--}}}
 --}}}
 
 -- Format
@@ -389,6 +376,12 @@ function M.sql_create_tempfile()--{{{
   local tmpname = os.tmpname()
   os.remove(tmpname)
   vim.cmd('silent write '..tmpname..'.sql')
+end--}}}
+
+function M.reset()--{{{
+  require("plenary.reload").reload_module("sqlpilot")
+  require("sqlpilot").setup()
+  M.sqlpilot_dict_command_param.dbms = nil
 end--}}}
 
 setmetatable(M, config)
