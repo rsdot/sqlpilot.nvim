@@ -1,7 +1,7 @@
 local M = {}
 
-function M.jsonfile_to_dict(jsonfile)-- {{{
-  local file = io.open(jsonfile,"r")
+function M.jsonfile_to_dict(jsonfile) -- {{{
+  local file = io.open(jsonfile, "r")
 
   if file == nil then
     print("can't find " .. jsonfile)
@@ -13,14 +13,14 @@ function M.jsonfile_to_dict(jsonfile)-- {{{
 
   -- print(jsonfile)
   return file_content
-end-- }}}
+end -- }}}
 
-function M.dict_to_jsonstring(dict)-- {{{
+function M.dict_to_jsonstring(dict) -- {{{
   return vim.fn.json_encode(dict)
-end-- }}}
+end -- }}}
 
-function M.file_to_string(infile)-- {{{
-  local file = io.open(infile,"r")
+function M.file_to_string(infile) -- {{{
+  local file = io.open(infile, "r")
 
   if file == nil then
     print("can't find " .. infile)
@@ -32,10 +32,10 @@ function M.file_to_string(infile)-- {{{
 
   -- print(infile)
   return file_content
-end-- }}}
+end -- }}}
 
-function M.file_to_array(infile)-- {{{
-  local file = io.open(infile,"r")
+function M.file_to_array(infile) -- {{{
+  local file = io.open(infile, "r")
 
   if file == nil then
     print("can't find " .. infile)
@@ -51,10 +51,10 @@ function M.file_to_array(infile)-- {{{
   file:close()
 
   return array
-end-- }}}
+end -- }}}
 
-function M.string_to_file(content, outfile)-- {{{
-  local file = io.open(outfile,"w")
+function M.string_to_file(content, outfile) -- {{{
+  local file = io.open(outfile, "w")
 
   if file == nil then
     print("can't write " .. outfile)
@@ -63,38 +63,36 @@ function M.string_to_file(content, outfile)-- {{{
 
   file:write(content)
   file:close()
-end-- }}}
+end -- }}}
 
-function M.stringlines_to_array(content)-- {{{
+function M.stringlines_to_array(content) -- {{{
   local array = {}
   for line in content:gmatch("([^\n]*)\n?") do
-    table.insert(array,line)
+    table.insert(array, line)
   end
   return array
-end-- }}}
+end -- }}}
 
-function M.plugin_path()-- {{{
+function M.plugin_path() -- {{{
   local function is_win()
-    return package.config:sub(1, 1) == '\\'
+    return package.config:sub(1, 1) == "\\"
   end
 
   local function get_path_separator()
     if is_win() then
-      return '\\'
+      return "\\"
     end
-    return '/'
+    return "/"
   end
 
-  local str = debug.getinfo(2, 'S').source:sub(2)
+  local str = debug.getinfo(2, "S").source:sub(2)
   if is_win() then
-    str = str:gsub('/', '\\')
+    str = str:gsub("/", "\\")
   end
-  return str:match('(.*)' ..
-    get_path_separator() ..
-    '.*' .. get_path_separator() ..
-    '.*' .. get_path_separator()
+  return str:match(
+    "(.*)" .. get_path_separator() .. ".*" .. get_path_separator() .. ".*" .. get_path_separator()
   )
-end-- }}}
+end -- }}}
 
 return M
 

@@ -1,100 +1,102 @@
 local status_ok, which_key = pcall(require, "which-key")
 if not status_ok then
-  vim.api.nvim_err_writeln "which-key is not installed; which is prerequisite!"
+  vim.api.nvim_err_writeln("which-key is not installed; which is prerequisite!")
   return
 end
 
 local M = {}
 
--- locals {{{
+--  ┌──────────────────────────────────────────────────────────────────────────────┐
+--    locals {{{
 local ks = vim.keymap.set
 local display_icon = ""
 
-local whichkey_initial_map = {-- {{{
-  create_tempfile  = { display = display_icon.." create temp file", sql_mapping = "w" },
-  scriptout_object = { display = display_icon.." scriptout",        sql_mapping = "5" },
-  select_dbenv     = { display = display_icon.." list db env",      sql_mapping = ";" },
-  change_dbenv     = { display = display_icon.." change env",       sql_mapping = ":" },
-  select_db        = { display = display_icon.." list env db",      sql_mapping = "," },
-  reset_dbenv      = { display = display_icon.." reset env",        sql_mapping = "." },
-}-- }}}
+-- stylua: ignore start
+local whichkey_initial_map = { -- {{{
+  create_tempfile  = { display = display_icon .. " create temp file", sql_mapping = "w" },
+  scriptout_object = { display = display_icon .. " scriptout",        sql_mapping = "5" },
+  select_dbenv     = { display = display_icon .. " list db env",      sql_mapping = ";" },
+  change_dbenv     = { display = display_icon .. " change env",       sql_mapping = ":" },
+  select_db        = { display = display_icon .. " list env db",      sql_mapping = "," },
+  reset_dbenv      = { display = display_icon .. " reset env",        sql_mapping = "." },
+} -- }}}
 
-local whichkey_initial_v_map = {-- {{{
-  adhoc_query_result_csv     = { display = display_icon.." run csv",   sql_mapping = "d", sql_run_command_type = "sql_csv" },
-  adhoc_query_result_cli_raw = { display = display_icon.." run query", sql_mapping = "f", sql_run_command_type = "sql_cli" },
-}-- }}}
+local whichkey_initial_v_map = { -- {{{
+  adhoc_query_result_csv     = { display = display_icon .. " run csv",   sql_mapping = "d", sql_run_command_type = "sql_csv" },
+  adhoc_query_result_cli_raw = { display = display_icon .. " run query", sql_mapping = "f", sql_run_command_type = "sql_cli" },
+} -- }}}
 
-local whichkey_initial_format_map = {-- {{{
-  _forward  = { display = display_icon.." /",  sql_mapping = "/" },
-  _backword = { display = display_icon.." \\", sql_mapping = "\\" },
-}-- }}}
+local whichkey_initial_format_map = { -- {{{
+  _forward  = { display = display_icon .. " /",  sql_mapping = "/" },
+  _backword = { display = display_icon .. " \\", sql_mapping = "\\" },
+} -- }}}
 
-local whichkey_dbobject_attribute_map = {-- {{{
-  selecttabledata_all         = { display = display_icon.." select all",            sql_mapping = "a", vim_cmd = "new"    },
-  selecttabledata_top         = { display = display_icon.." select top 100",        sql_mapping = "z", vim_cmd = "new"    },
-  selecttablecount            = { display = display_icon.." select count",          sql_mapping = "c", vim_cmd = "new"    },
-  desc                        = { display = display_icon.." desc",                  sql_mapping = "`", vim_cmd = "new"    },
-  schemaobject                = { display = display_icon.." show schema",           sql_mapping = "1", vim_cmd = "50vnew" },
-  schemaobject_enhanced       = { display = display_icon.." show schema enhanced",  sql_mapping = "!", vim_cmd = "50vnew" },
-  programmableobject          = { display = display_icon.." show progobj",          sql_mapping = "2", vim_cmd = "50vnew" },
-  programmableobject_enhanced = { display = display_icon.." show progobj enhanced", sql_mapping = "@", vim_cmd = "50vnew" },
-  listcolumns                 = { display = display_icon.." show columns",          sql_mapping = "3", vim_cmd = "new"    },
-  descindex                   = { display = display_icon.." desc index",            sql_mapping = "4", vim_cmd = "new"    },
-  contextinfo                 = { display = display_icon.." show contextinfo",      sql_mapping = "6", vim_cmd = "new"    },
-  listjobs                    = { display = display_icon.." show job",              sql_mapping = "7", vim_cmd = "new"    },
-  listfktables                = { display = display_icon.." show fktables",         sql_mapping = "8", vim_cmd = "new"    },
-  listmetadata                = { display = display_icon.." show metadata",         sql_mapping = "9", vim_cmd = "new"    },
-  referencedby                = { display = display_icon.." show referencedby",     sql_mapping = "0", vim_cmd = "new"    },
-}-- }}}
+local whichkey_dbobject_attribute_map = { -- {{{
+  selecttabledata_all         = { display = display_icon .. " select all",            sql_mapping = "a", vim_cmd = "new" },
+  selecttabledata_top         = { display = display_icon .. " select top 100",        sql_mapping = "z", vim_cmd = "new" },
+  selecttablecount            = { display = display_icon .. " select count",          sql_mapping = "c", vim_cmd = "new" },
+  desc                        = { display = display_icon .. " desc",                  sql_mapping = "`", vim_cmd = "new" },
+  schemaobject                = { display = display_icon .. " show schema",           sql_mapping = "1", vim_cmd = "50vnew" },
+  schemaobject_enhanced       = { display = display_icon .. " show schema enhanced",  sql_mapping = "!", vim_cmd = "50vnew" },
+  programmableobject          = { display = display_icon .. " show progobj",          sql_mapping = "2", vim_cmd = "50vnew" },
+  programmableobject_enhanced = { display = display_icon .. " show progobj enhanced", sql_mapping = "@", vim_cmd = "50vnew" },
+  listcolumns                 = { display = display_icon .. " show columns",          sql_mapping = "3", vim_cmd = "new" },
+  descindex                   = { display = display_icon .. " desc index",            sql_mapping = "4", vim_cmd = "new" },
+  contextinfo                 = { display = display_icon .. " show contextinfo",      sql_mapping = "6", vim_cmd = "new" },
+  listjobs                    = { display = display_icon .. " show job",              sql_mapping = "7", vim_cmd = "new" },
+  listfktables                = { display = display_icon .. " show fktables",         sql_mapping = "8", vim_cmd = "new" },
+  listmetadata                = { display = display_icon .. " show metadata",         sql_mapping = "9", vim_cmd = "new" },
+  referencedby                = { display = display_icon .. " show referencedby",     sql_mapping = "0", vim_cmd = "new" },
+} -- }}}
+-- stylua: ignore end
 
-local n_opts = {-- {{{
+local n_opts = { -- {{{
   mode = "n", -- NORMAL mode
   prefix = "<leader>",
   buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
   silent = true, -- use `silent` when creating keymaps
   noremap = true, -- use `noremap` when creating keymaps
   nowait = true, -- use `nowait` when creating keymaps
-}-- }}}
+} -- }}}
 
-local v_opts = {-- {{{
+local v_opts = { -- {{{
   mode = "v", -- visual mode
   prefix = "<leader>",
   buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
   silent = true, -- use `silent` when creating keymaps
   noremap = true, -- use `noremap` when creating keymaps
   nowait = true, -- use `nowait` when creating keymaps
-}-- }}}
+} -- }}}
 
-local function n_reg()-- {{{
+local function n_reg() -- {{{
   return require("sqlpilot.config").dict_which_key_registers.normal
-end-- }}}
+end -- }}}
 
-local function v_reg()-- {{{
+local function v_reg() -- {{{
   return require("sqlpilot.config").dict_which_key_registers.visual
-end-- }}}
+end -- }}}
 
-local function which_key_n_deregister(object_attribute, prefix, mode)-- {{{
+local function which_key_n_deregister(object_attribute, prefix, mode) -- {{{
   local m = whichkey_dbobject_attribute_map[object_attribute]
   local mapping = (prefix or "<leader>") .. n_reg() .. m.sql_mapping
   pcall(vim.api.nvim_del_keymap, mode or "n", mapping)
-  which_key.register( { [mapping] = "which_key_ignore" } )
-end-- }}}
+  which_key.register({ [mapping] = "which_key_ignore" })
+end -- }}}
 
-local function which_key_n_register(object_attribute)-- {{{
+local function which_key_n_register(object_attribute) -- {{{
   local m = whichkey_dbobject_attribute_map[object_attribute]
   --[[ vim.pretty_print(m) ]]
 
-  local n_mappings = {
-    [n_reg()] = {
-      [m.sql_mapping] = { "<Plug>(sql_"..object_attribute..")", m.display }
-    }
-  }
+  local n_mappings =
+    { [n_reg()] = { [m.sql_mapping] = { "<Plug>(sql_" .. object_attribute .. ")", m.display } } }
 
   which_key.register(n_mappings, n_opts)
-end-- }}}
--- }}}
+end -- }}}
 
-function M.sql_remove_invalid_whichkey_entries()-- {{{
+-- }}}
+--  └──────────────────────────────────────────────────────────────────────────────┘
+
+function M.sql_remove_invalid_whichkey_entries() -- {{{
   local config = require("sqlpilot.config")
   local sqlpilot = require("sqlpilot")
 
@@ -108,115 +110,126 @@ function M.sql_remove_invalid_whichkey_entries()-- {{{
       which_key_n_register(object_attribute)
     end
   end
-end-- }}}
+end -- }}}
 
-function M.sql_set_whichkey_initial_keymap()-- {{{
-  ----------------------------------------
-  -- normal mode
-  ----------------------------------------
-  local n_mappings = {
-    [n_reg()] = {
-      name = "Sql "..display_icon,
-      F = {
-        name = "Sql format "..display_icon,
-      },
-    }
-  }
+function M.sql_set_whichkey_initial_keymap() -- {{{
+  --  ┌                                                                              ┐
+  --  │ normal mode                                                                  │
+  --  └                                                                              ┘
+  local n_mappings =
+    { [n_reg()] = { name = "Sql " .. display_icon, F = { name = "Sql format " .. display_icon } } }
   which_key.register(n_mappings, n_opts)
 
   for o, m in pairs(whichkey_initial_map) do
-    local n_mappings = {
-      [n_reg()] = {
-        [m.sql_mapping] = { "<Plug>(sql_"..o..")", m.display }
-      }
-    }
+    local n_mappings =
+      { [n_reg()] = { [m.sql_mapping] = { "<Plug>(sql_" .. o .. ")", m.display } } }
     which_key.register(n_mappings, n_opts)
   end
 
   for _, m in pairs(whichkey_initial_format_map) do
-    local n_mappings = {
-      [n_reg()] = {
-        F = {
-          [m.sql_mapping] = { "<Plug>(sql_format_slash_toggle)", m.display }
-        }
-      }
-    }
+    local n_mappings =
+      { [n_reg()] = { F = { [m.sql_mapping] = { "<Plug>(sql_format_slash_toggle)", m.display } } } }
     which_key.register(n_mappings, n_opts)
   end
 
-  ----------------------------------------
-  -- visual mode
-  ----------------------------------------
+  --  ┌                                                                              ┐
+  --  │ visual mode                                                                  │
+  --  └                                                                              ┘
   local v_mappings = {
     [v_reg()] = {
-      name = "Sql "..display_icon,
-    }
+      name = "Sql " .. display_icon,
+    },
   }
   which_key.register(v_mappings, v_opts)
 
   for o, m in pairs(whichkey_initial_v_map) do
-    local v_mappings = {
-      [v_reg()] = {
-        [m.sql_mapping] = { "<Plug>(sql_"..o..")", m.display }
-      }
-    }
+    local v_mappings =
+      { [v_reg()] = { [m.sql_mapping] = { "<Plug>(sql_" .. o .. ")", m.display } } }
     which_key.register(v_mappings, v_opts)
   end
-end-- }}}
+end -- }}}
 
-function M.sql_set_keymap()-- {{{
+function M.sql_set_keymap() -- {{{
   local opts = { silent = true }
 
   -- visual map
   for o, m in pairs(whichkey_initial_v_map) do
-    ks('x', '<Plug>(sql_'..o..')', string.format('<ESC><CMD>lua require("sqlpilot").sql_adhoc_query_result("%s")<CR>', m.sql_run_command_type), opts)
+    ks(
+      "x",
+      "<Plug>(sql_" .. o .. ")",
+      string.format(
+        '<ESC><CMD>lua require("sqlpilot").sql_adhoc_query_result("%s")<CR>',
+        m.sql_run_command_type
+      ),
+      opts
+    )
   end
 
   -- normal map
   for object_attribute, m in pairs(whichkey_dbobject_attribute_map) do
-    ks('n', '<Plug>(sql_'..object_attribute..')', string.format('<CMD>lua require("sqlpilot").sql_list_dbobject_attribute("%s","%s")<CR>', object_attribute, m.vim_cmd), opts)
+    ks(
+      "n",
+      "<Plug>(sql_" .. object_attribute .. ")",
+      string.format(
+        '<CMD>lua require("sqlpilot").sql_list_dbobject_attribute("%s","%s")<CR>',
+        object_attribute,
+        m.vim_cmd
+      ),
+      opts
+    )
   end
 
   for o, _ in pairs(whichkey_initial_map) do
-    ks('n', '<Plug>(sql_'..o..')', string.format('<CMD>lua require("sqlpilot").sql_%s()<CR>', o), opts)
+    ks(
+      "n",
+      "<Plug>(sql_" .. o .. ")",
+      string.format('<CMD>lua require("sqlpilot").sql_%s()<CR>', o),
+      opts
+    )
   end
 
-  ks('n', '<Plug>(sql_format_slash_toggle)', '<CMD>lua require("sqlpilot").sql_format_slash_toggle()<CR>', opts)
-end-- }}}
+  ks(
+    "n",
+    "<Plug>(sql_format_slash_toggle)",
+    '<CMD>lua require("sqlpilot").sql_format_slash_toggle()<CR>',
+    opts
+  )
+end -- }}}
 
-function M.sql_text_expander()-- {{{
+-- stylua: ignore
+function M.sql_text_expander() -- {{{
   local opts = { silent = true, noremap = true, buffer = 0 }
 
-  ks('i', ';s', 'SELECT ',           opts)
-  ks('i', ';b', 'BEGIN',             opts)
-  ks('i', ';c', 'COUNT(1) ',         opts)
-  ks('i', ';d', 'DECLARE ',          opts)
-  ks('i', ';D', 'DISTINCT ',         opts)
-  ks('i', ';C', 'CONVERT(',          opts)
-  ks('i', ';e', 'END',               opts)
-  ks('i', ';f', 'FROM ',             opts)
-  ks('i', ';g', 'GROUP BY ',         opts)
-  ks('i', ';h', 'HAVING ',           opts)
-  ks('i', ';i', 'INSERT INTO ',      opts)
-  ks('i', ';j', 'INNER JOIN ',       opts)
-  ks('i', ';m', 'OPTION (MAXDOP 1)', opts)
-  ks('i', ';N', 'IS NOT NULL',       opts)
-  ks('i', ';o', 'ORDER BY ',         opts)
-  ks('i', ';s', 'SELECT ',           opts)
-  ks('i', ';l', 'LIMIT 1 ',          opts)
-  ks('i', ';l', 'LATERAL ',          opts)
-  ks('i', ';u', 'UPDATE ',           opts)
-  ks('i', ';U', 'IS NULL',           opts)
-  ks('i', ';v', 'VALUES(',           opts)
-  ks('i', ';V', 'varchar(',          opts)
-  ks('i', ';w', 'WHERE ',            opts)
-  ks('i', ';x', 'CROSS APPLY (',     opts)
+  ks("i", ";s", "SELECT "          , opts)
+  ks("i", ";b", "BEGIN"            , opts)
+  ks("i", ";c", "COUNT(1) "        , opts)
+  ks("i", ";d", "DECLARE "         , opts)
+  ks("i", ";D", "DISTINCT "        , opts)
+  ks("i", ";C", "CONVERT("         , opts)
+  ks("i", ";e", "END"              , opts)
+  ks("i", ";f", "FROM "            , opts)
+  ks("i", ";g", "GROUP BY "        , opts)
+  ks("i", ";h", "HAVING "          , opts)
+  ks("i", ";i", "INSERT INTO "     , opts)
+  ks("i", ";j", "INNER JOIN "      , opts)
+  ks("i", ";m", "OPTION (MAXDOP 1)", opts)
+  ks("i", ";N", "IS NOT NULL"      , opts)
+  ks("i", ";o", "ORDER BY "        , opts)
+  ks("i", ";s", "SELECT "          , opts)
+  ks("i", ";l", "LIMIT 1 "         , opts)
+  ks("i", ";l", "LATERAL "         , opts)
+  ks("i", ";u", "UPDATE "          , opts)
+  ks("i", ";U", "IS NULL"          , opts)
+  ks("i", ";v", "VALUES("          , opts)
+  ks("i", ";V", "varchar("         , opts)
+  ks("i", ";w", "WHERE "           , opts)
+  ks("i", ";x", "CROSS APPLY ("    , opts)
 
-  ks('c', '2))', '\\([^\\t]*\\)\\t\\([^\\t]*\\)',                                                 opts)
-  ks('c', '3))', '\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)',                                 opts)
-  ks('c', '4))', '\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)',                 opts)
-  ks('c', '5))', '\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)', opts)
-end-- }}}
+  ks("c", "2))", "\\([^\\t]*\\)\\t\\([^\\t]*\\)"                                                , opts)
+  ks("c", "3))", "\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)"                                , opts)
+  ks("c", "4))", "\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)"                , opts)
+  ks("c", "5))", "\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)", opts)
+end -- }}}
 
 return M
 
