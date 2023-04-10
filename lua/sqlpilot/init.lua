@@ -52,21 +52,47 @@ function M.sql_select_db() --{{{
     M.sql_select_dbenv()
   end
 
+  --  ┌                                                                              ┐
+  --  │ for db choice                                                                │
+  --  └                                                                              ┘
   local dbname_list = M.sqlpilot_dict_command_param.dbname_list
 
-  local dbname_idx
   vim.ui.select(dbname_list, { prompt = "Please choice dbname:" }, function(_, idx)
-    dbname_idx = idx
+    if idx == nil then
+      return nil
+    end
+
+    local dbname = dbname_list[idx]:match("[^%s]+")
+    if dbname == nil then
+      M.sqlpilot_dict_command_param.dbname = "tobeselected"
+      return nil
+    end
+
+    M.sqlpilot_dict_command_param.dbname = dbname
   end)
-  vim.cmd("redraw!")
-  if dbname_idx == nil then
-    M.sqlpilot_dict_command_param.dbname = "tobeselected"
-    return nil
-  end
+end --}}}
 
-  local dbname = dbname_list[dbname_idx]:match("[^%s]+")
+local sql_select_dbenv_individual = function(product) --{{{
+  --  ┌                                                                              ┐
+  --  │ for dbenv choice                                                             │
+  --  └                                                                              ┘
+  vim.ui.select(product.dbenv, { prompt = "Please choice dbenv:", format_item = function(item)
+      return string.format("%-20s (%s)", item.alias, item.dbserver)
+    end,
+  }, function(_, idx)
+    -- product.dbenv[idx] looks like: {"desc":"manager.local","dbname":["tpcc1"],"dbserver":"10.10.10.100:3306","alias":"manager.local"}
+    local dbenv = product.dbenv[idx]
+    if dbenv == nil then
+      return nil
+    end
 
-  M.sqlpilot_dict_command_param.dbname = dbname
+    local dbname_list = dbenv["dbname"] ~= nil and dbenv["dbname"] or product["dbname"]
+
+    M.sqlpilot_dict_command_param.dbname_list = dbname_list
+
+    sql_set_sqlpilot_dict_command_param(product, dbenv)
+    M.sql_select_db()
+  end)
 end --}}}
 
 function M.sql_select_dbenv() --{{{
@@ -79,134 +105,18 @@ function M.sql_select_dbenv() --{{{
   end
   table.sort(sorted_product_name)
 
-  local product_name
   vim.ui.select(sorted_product_name, { prompt = "Please choice product:" }, function(choice)
-    product_name = choice
+    local product = M.dict_conn.Product[choice]
+    if product == nil then return nil end
+    sql_select_dbenv_individual(product)
   end)
-  vim.cmd("redraw!")
-  if product_name == nil then
-    return nil
-  end
-  local product = M.dict_conn.Product[product_name]
-
-  --  ┌                                                                              ┐
-  --  │ for dbenv choice                                                             │
-  --  └                                                                              ┘
-  local dbenv_idx
-  vim.ui.select(product.dbenv, {
-    prompt = "Please choice dbenv:",
-    format_item = function(item)
-      return string.format("%-20s (%s)", item.alias, item.dbserver)
-    end,
-  }, function(_, idx)
-    dbenv_idx = idx
-  end)
-  vim.cmd("redraw!")
-  if dbenv_idx == nil then
-    return nil
-  end
-  -- product.dbenv[dbenv_idx] looks like: {"desc":"manager.local","dbname":["tpcc1"],"dbserver":"10.10.10.100:3306","alias":"manager.local"}
-  local dbenv = product.dbenv[dbenv_idx]
-  local dbname_list = dbenv["dbname"] ~= nil and dbenv["dbname"] or product["dbname"]
-
-  M.sqlpilot_dict_command_param.dbname_list = dbname_list
-
-  sql_set_sqlpilot_dict_command_param(product, dbenv)
-  M.sql_select_db()
 end --}}}
 
-function M.sql_change_dbenv() --{{{
-  if M.sqlpilot_dict_command_param["dbms"] == nil then
-    M.sql_select_dbenv()
-  end
-
-  --  ┌                                                                              ┐
-  --  │ for sqlpilot_dict_command_param.dbserver                                     │
-  --  └                                                                              ┘
-  local message = string.format(
-    "[%s]<%s>",
-    M.sqlpilot_dict_command_param.alias,
-    M.sqlpilot_dict_command_param.dbserver
-  )
-  vim.ui.input({
-    prompt = string.format("Enter DB Server %s: ", message),
-    default = M.sqlpilot_dict_command_param.dbserver,
-  }, function(input)
-    if input == nil then
-      vim.cmd("redraw!")
-      print("no change made(" .. message .. ")")
-    else
-      M.sqlpilot_dict_command_param.alias = input
-      M.sqlpilot_dict_command_param.dbserver = input
-    end
-  end)
-
-  --  ┌                                                                              ┐
-  --  │ for sqlpilot_dict_command_param.port                                         │
-  --  └                                                                              ┘
-  local sql_cli = M.dict_run.dbms[M.sqlpilot_dict_command_param.dbms].sql_cli
-  if vim.regex([[{port}]]):match_str(sql_cli.command) ~= nil then
-    local message = string.format("<%s>", M.sqlpilot_dict_command_param.port)
-    vim.ui.input({
-      prompt = string.format("Enter DB Server Port %s: ", message),
-      default = M.sqlpilot_dict_command_param.port,
-    }, function(input)
-      if input == nil then
-        vim.cmd("redraw!")
-        print("no change made(" .. message .. ")")
-      else
-        M.sqlpilot_dict_command_param.port = input
-      end
-    end)
-  end
-
-  --  ┌                                                                              ┐
-  --  │ for sqlpilot_dict_command_param.dbname                                       │
-  --  └                                                                              ┘
-  local message = string.format(
-    "[%s]%s.<%s>",
-    M.sqlpilot_dict_command_param.alias,
-    M.sqlpilot_dict_command_param.dbserver,
-    M.sqlpilot_dict_command_param.dbname
-  )
-  vim.ui.input({
-    prompt = string.format("Enter DB Name %s: ", message),
-    default = M.sqlpilot_dict_command_param.dbname,
-  }, function(input)
-    if input == nil then
-      vim.cmd("redraw!")
-      print("no change made(" .. message .. ")")
-    else
-      M.sqlpilot_dict_command_param.dbname = input
-    end
-  end)
-
-  --  ┌                                                                              ┐
-  --  │ for sqlpilot_dict_command_param.loginname                                    │
-  --  └                                                                              ┘
-  local message = string.format(
-    "[%s]%s.%s.<%s>",
-    M.sqlpilot_dict_command_param.alias,
-    M.sqlpilot_dict_command_param.dbserver,
-    M.sqlpilot_dict_command_param.dbname,
-    M.sqlpilot_dict_command_param.loginname
-  )
-
-  vim.ui.input({
-    prompt = string.format("Enter DB Loginname %s: ", message),
-    default = M.sqlpilot_dict_command_param.loginname,
-  }, function(input)
-    if input == nil then
-      vim.cmd("redraw!")
-      print("no change made(" .. message .. ")")
-    else
-      M.sqlpilot_dict_command_param.loginname = input
-    end
-  end)
-
+local sql_change_dbenv_password = function()-- {{{
   --  ┌                                                                              ┐
   --  │ for sqlpilot_dict_command_param.password                                     │
   --  └                                                                              ┘
+  vim.cmd("redraw!")
   local message = string.format(
     "[%s]%s.%s.%s.<%s>",
     M.sqlpilot_dict_command_param.alias,
@@ -221,13 +131,29 @@ function M.sql_change_dbenv() --{{{
     default = M.sqlpilot_dict_command_param.password,
   }, function(input)
     if input == nil then
-      vim.cmd("redraw!")
-      print("no change made(" .. message .. ")")
+      vim.api.nvim_err_writeln("no password change made(" .. message .. ")")
     else
       M.sqlpilot_dict_command_param.password = input
+
+      message = string.format(
+        "[%s]%s.%s.<%s>",
+        M.sqlpilot_dict_command_param.alias,
+        M.sqlpilot_dict_command_param.dbserver,
+        M.sqlpilot_dict_command_param.dbname,
+        M.sqlpilot_dict_command_param.loginname
+      )
+
+      vim.cmd("redraw!")
+      print("Current Setting: " .. message)
     end
   end)
+end-- }}}
 
+local sql_change_dbenv_loginname = function()-- {{{
+  --  ┌                                                                              ┐
+  --  │ for sqlpilot_dict_command_param.loginname                                    │
+  --  └                                                                              ┘
+  vim.cmd("redraw!")
   local message = string.format(
     "[%s]%s.%s.<%s>",
     M.sqlpilot_dict_command_param.alias,
@@ -235,9 +161,99 @@ function M.sql_change_dbenv() --{{{
     M.sqlpilot_dict_command_param.dbname,
     M.sqlpilot_dict_command_param.loginname
   )
+  vim.ui.input({
+    prompt = string.format("Enter DB Loginname %s: ", message),
+    default = M.sqlpilot_dict_command_param.loginname,
+  }, function(input)
+    if input == nil then
+      vim.api.nvim_err_writeln("no loginname change made(" .. message .. ")")
+    else
+      M.sqlpilot_dict_command_param.loginname = input
 
+      sql_change_dbenv_password()
+    end
+  end)
+end-- }}}
+
+local sql_change_dbenv_dbname = function()-- {{{
+  --  ┌                                                                              ┐
+  --  │ for sqlpilot_dict_command_param.dbname                                       │
+  --  └                                                                              ┘
   vim.cmd("redraw!")
-  print("Current Setting: " .. message)
+  local message = string.format(
+    "[%s]%s.<%s>",
+    M.sqlpilot_dict_command_param.alias,
+    M.sqlpilot_dict_command_param.dbserver,
+    M.sqlpilot_dict_command_param.dbname
+  )
+  vim.ui.input({
+    prompt = string.format("Enter DB Name %s: ", message),
+    default = M.sqlpilot_dict_command_param.dbname,
+  }, function(input)
+    if input == nil then
+      vim.api.nvim_err_writeln("no dbname change made(" .. message .. ")")
+    else
+      M.sqlpilot_dict_command_param.dbname = input
+
+      sql_change_dbenv_loginname()
+    end
+  end)
+end-- }}}
+
+local sql_change_dbenv_port = function()-- {{{
+  --  ┌                                                                              ┐
+  --  │ for sqlpilot_dict_command_param.port                                         │
+  --  └                                                                              ┘
+  vim.cmd("redraw!")
+  local message = string.format("<%s>", M.sqlpilot_dict_command_param.port)
+  local sql_cli = M.dict_run.dbms[M.sqlpilot_dict_command_param.dbms].sql_cli
+  if vim.regex([[{port}]]):match_str(sql_cli.command) ~= nil then
+    vim.ui.input({
+      prompt = string.format("Enter DB Server Port %s: ", message),
+      default = M.sqlpilot_dict_command_param.port,
+    }, function(input)
+      if input == nil then
+        vim.api.nvim_err_writeln("no port change made(" .. message .. ")")
+      else
+        M.sqlpilot_dict_command_param.port = input
+
+        sql_change_dbenv_dbname()
+      end
+    end)
+  end
+end-- }}}
+
+local sql_change_dbenv_dbserver = function()-- {{{
+  --  ┌                                                                              ┐
+  --  │ for sqlpilot_dict_command_param.dbserver                                     │
+  --  └                                                                              ┘
+  vim.cmd("redraw!")
+  local message = string.format(
+    "[%s]<%s>",
+    M.sqlpilot_dict_command_param.alias,
+    M.sqlpilot_dict_command_param.dbserver
+  )
+  vim.ui.input({
+    prompt = string.format("Enter DB Server %s: ", message),
+    default = M.sqlpilot_dict_command_param.dbserver,
+  }, function(input)
+    if input == nil then
+      vim.api.nvim_err_writeln("no alias & dbserver change made(" .. message .. ")")
+    else
+      M.sqlpilot_dict_command_param.alias = input
+      M.sqlpilot_dict_command_param.dbserver = input
+
+      sql_change_dbenv_port()
+    end
+  end)
+end-- }}}
+
+function M.sql_change_dbenv() --{{{
+  if M.sqlpilot_dict_command_param["dbms"] == nil then
+    M.sql_select_dbenv()
+  end
+
+  sql_change_dbenv_dbserver()
 end --}}}
 
 function M.sql_reset_dbenv() --{{{
@@ -362,8 +378,8 @@ function M.sql_adhoc_query_result(sql_run_command_type) --{{{
   end
 
   -- visual lines
-  local startline, _ = vim.api.nvim_buf_get_mark(0, "<")[1] - 1
-  local endline, _ = vim.api.nvim_buf_get_mark(0, ">")[1]
+  local startline = vim.api.nvim_buf_get_mark(0, "<")[1] - 1
+  local endline = vim.api.nvim_buf_get_mark(0, ">")[1]
   -- print (startline, endline)
   local selected_lines = vim.api.nvim_buf_get_lines(0, startline, endline, false)
   local query = table.concat(selected_lines, "\n")
