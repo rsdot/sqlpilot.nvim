@@ -47,7 +47,7 @@
     },
     "mysql": {
       "sql_csv": {
-        "command": ""
+        "command": "SQLALCHEMY_SILENCE_UBER_WARNING=1 sql2csv --db 'mysql://{loginname}:{password}@{dbserver}:{port}/{dbname}' {infile} > {outfile} 2>&1"
       },
       "sql_cli": {
         "command": "MYSQL_PWD='{password}' mysql --ssl-mode=DISABLED -h {dbserver} -u {loginname} -P {port} -t -D {dbname} < {infile} > {outfile} 2>&1"

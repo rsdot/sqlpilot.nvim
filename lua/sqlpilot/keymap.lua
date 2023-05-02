@@ -117,7 +117,7 @@ function M.sql_set_whichkey_initial_keymap() -- {{{
   --  │ normal mode                                                                  │
   --  └                                                                              ┘
   local n_mappings =
-    { [n_reg()] = { name = "Sql " .. display_icon, F = { name = "Sql format " .. display_icon } } }
+    { [n_reg()] = { name = display_icon .. " Sql", F = { name = display_icon .. " Sql format" } } }
   which_key.register(n_mappings, n_opts)
 
   for o, m in pairs(whichkey_initial_map) do
@@ -137,7 +137,7 @@ function M.sql_set_whichkey_initial_keymap() -- {{{
   --  └                                                                              ┘
   local v_mappings = {
     [v_reg()] = {
-      name = "Sql " .. display_icon,
+      name = display_icon .. " Sql",
     },
   }
   which_key.register(v_mappings, v_opts)
