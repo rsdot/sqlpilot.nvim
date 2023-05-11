@@ -69,19 +69,19 @@ A neovim plugin for navigating database schemas and executing custom queries acr
         elseif dbmstype == 'mongodb' then
           dbmsicon = ''
         elseif dbmstype == 'oracle' then
-          dbmsicon = 'ﱤ'
+          dbmsicon = ''
         end
 
         return '⟛ ' .. dbmsicon .. sqlpilot.sqlpilot_dict_command_param.alias .. '.' .. sqlpilot.sqlpilot_dict_command_param.dbname
       else
-        return ''
+		return "󰆼"
       end
     end
 
     local dbconn_prod = {
       'dbconn_prod',
       cons_enabled = true,
-      icon = '',
+      icon = '󰆼',
       fmt = db_conn_string,
       color = {fg = '#a14f6d', gui='italic,bold'},
       cond = function()
@@ -92,7 +92,7 @@ A neovim plugin for navigating database schemas and executing custom queries acr
     local dbconn_nonprod = {
       'dbconn_nonprod',
       cons_enabled = true,
-      icon = '',
+      icon = '󰆼',
       fmt = db_conn_string,
       color = {fg = '#63c259', gui='italic'},
       cond = function()
