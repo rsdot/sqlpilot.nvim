@@ -9,7 +9,7 @@ local M = {}
 --  ┌──────────────────────────────────────────────────────────────────────────────┐
 --    locals {{{
 local ks = vim.keymap.set
-local display_icon = ""
+local display_icon = "󰆼"
 
 -- stylua: ignore start
 local whichkey_initial_map = { -- {{{
