@@ -27,16 +27,7 @@
     },
     "postgresql": {
       "sql_csv": {
-        "command": "PGCONNECT_TIMEOUT=3 PGPASSWORD='{password}' psql -P pager=off -v ON_ERROR_STOP=1 -h {dbserver} -U {loginname} -p {port} -d {dbname} -f {infile} > {outfile} 2>&1",
-        "header": [
-          "COPY",
-          "("
-        ],
-        "footer": [
-          ")",
-          "TO STDOUT",
-          "WITH CSV HEADER"
-        ]
+        "command": "SQLALCHEMY_SILENCE_UBER_WARNING=1 sql2csv --db 'postgresql://{loginname}:{password}@{dbserver}:{port}/{dbname}' {infile} > {outfile} 2>&1"
       },
       "sql_cli": {
         "command": "PGCONNECT_TIMEOUT=3 PGPASSWORD='{password}' psql -P pager=off -v ON_ERROR_STOP=1 -h {dbserver} -U {loginname} -p {port} -d {dbname} -f {infile} > {outfile} 2>&1"
