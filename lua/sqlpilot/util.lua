@@ -8,7 +8,7 @@ function M.jsonfile_to_dict(jsonfile) -- {{{
     return nil
   end
 
-  local file_content = vim.fn.json_decode(file:read("a"))
+  local file_content = vim.json.decode(file:read("a"))
   file:close()
 
   -- print(jsonfile)
@@ -16,7 +16,7 @@ function M.jsonfile_to_dict(jsonfile) -- {{{
 end -- }}}
 
 function M.dict_to_jsonstring(dict) -- {{{
-  return vim.fn.json_encode(dict)
+  return vim.json.encode(dict)
 end -- }}}
 
 function M.file_to_string(infile) -- {{{
