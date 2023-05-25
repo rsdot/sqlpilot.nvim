@@ -1,7 +1,7 @@
-local util = require("sqlpilot.util")
-local config = require("sqlpilot.config")
 local autocmd = require("sqlpilot.autocmd")
+local config = require("sqlpilot.config")
 local keymap = require("sqlpilot.keymap")
+local util = require("sqlpilot.util")
 
 local M = {}
 
@@ -76,7 +76,9 @@ local sql_select_dbenv_individual = function(product) --{{{
   --  ┌                                                                              ┐
   --  │ for dbenv choice                                                             │
   --  └                                                                              ┘
-  vim.ui.select(product.dbenv, { prompt = "Please choice dbenv:", format_item = function(item)
+  vim.ui.select(product.dbenv, {
+    prompt = "Please choice dbenv:",
+    format_item = function(item)
       return string.format("%-20s (%s)", item.alias, item.dbserver)
     end,
   }, function(_, idx)
@@ -107,12 +109,14 @@ function M.sql_select_dbenv() --{{{
 
   vim.ui.select(sorted_product_name, { prompt = "Please choice product:" }, function(choice)
     local product = M.dict_conn.Product[choice]
-    if product == nil then return nil end
+    if product == nil then
+      return nil
+    end
     sql_select_dbenv_individual(product)
   end)
 end --}}}
 
-local sql_change_dbenv_password = function()-- {{{
+local sql_change_dbenv_password = function() -- {{{
   --  ┌                                                                              ┐
   --  │ for sqlpilot_dict_command_param.password                                     │
   --  └                                                                              ┘
@@ -147,9 +151,9 @@ local sql_change_dbenv_password = function()-- {{{
       print("Current Setting: " .. message)
     end
   end)
-end-- }}}
+end -- }}}
 
-local sql_change_dbenv_loginname = function()-- {{{
+local sql_change_dbenv_loginname = function() -- {{{
   --  ┌                                                                              ┐
   --  │ for sqlpilot_dict_command_param.loginname                                    │
   --  └                                                                              ┘
@@ -173,9 +177,9 @@ local sql_change_dbenv_loginname = function()-- {{{
       sql_change_dbenv_password()
     end
   end)
-end-- }}}
+end -- }}}
 
-local sql_change_dbenv_dbname = function()-- {{{
+local sql_change_dbenv_dbname = function() -- {{{
   --  ┌                                                                              ┐
   --  │ for sqlpilot_dict_command_param.dbname                                       │
   --  └                                                                              ┘
@@ -198,9 +202,9 @@ local sql_change_dbenv_dbname = function()-- {{{
       sql_change_dbenv_loginname()
     end
   end)
-end-- }}}
+end -- }}}
 
-local sql_change_dbenv_port = function()-- {{{
+local sql_change_dbenv_port = function() -- {{{
   --  ┌                                                                              ┐
   --  │ for sqlpilot_dict_command_param.port                                         │
   --  └                                                                              ┘
@@ -221,9 +225,9 @@ local sql_change_dbenv_port = function()-- {{{
       end
     end)
   end
-end-- }}}
+end -- }}}
 
-local sql_change_dbenv_dbserver = function()-- {{{
+local sql_change_dbenv_dbserver = function() -- {{{
   --  ┌                                                                              ┐
   --  │ for sqlpilot_dict_command_param.dbserver                                     │
   --  └                                                                              ┘
@@ -246,7 +250,7 @@ local sql_change_dbenv_dbserver = function()-- {{{
       sql_change_dbenv_port()
     end
   end)
-end-- }}}
+end -- }}}
 
 function M.sql_change_dbenv() --{{{
   if M.sqlpilot_dict_command_param["dbms"] == nil then
@@ -261,6 +265,7 @@ function M.sql_reset_dbenv() --{{{
     M.sqlpilot_dict_command_param.dbms = nil
   end
 
+  config.dict_conn = util.jsonfile_to_dict(M.options.sql_conn)
   M.sql_select_dbenv()
 end --}}}
 
@@ -459,7 +464,6 @@ end --}}}
 function M.reset() --{{{
   require("plenary.reload").reload_module("sqlpilot")
   require("sqlpilot").setup()
-  M.sqlpilot_dict_command_param.dbms = nil
 end --}}}
 
 --}}}

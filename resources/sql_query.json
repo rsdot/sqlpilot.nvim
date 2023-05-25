@@ -42,7 +42,7 @@
         "SELECT",
         "  n.nspname AS schemaname,",
         "  c.relname AS objectname,",
-        "  pg_size_pretty(pg_total_relation_size(c.oid)) || '(T:' || pg_size_pretty(pg_table_size(c.oid)) || '/I:' || pg_size_pretty(pg_indexes_size(c.oid)) || ')',",
+        "  pg_size_pretty(pg_total_relation_size(c.oid)) || '(T:' || pg_size_pretty(pg_table_size(c.oid)) || '/I:' || pg_size_pretty(pg_indexes_size(c.oid)) || ')' AS size,",
         "  CAST(c.reltuples AS numeric(20,0)) AS rowcnt,",
         "--  CAST(c.relpages AS numeric(20,0)) AS pages,",
         "  CASE c.relkind WHEN 'r' THEN 'table' WHEN 'v' THEN 'view' WHEN 'i' THEN 'index' WHEN 'S' THEN 'sequence' WHEN 's' THEN 'special' WHEN 'f' THEN 'foreign table' END AS \"Type\",",
@@ -62,7 +62,7 @@
         "    OR c.relkind='f' --foreign table",
         "    OR c.relkind='s' --special",
         "    )",
-        "ORDER BY \"Type\" DESC,c.reltuples DESC"
+        "ORDER BY \"Type\" DESC,c.reltuples DESC;"
       ],
       "mysql": [
         "SELECT table_schema,table_name,table_rows FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '{dbname}';"
