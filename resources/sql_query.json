@@ -50,10 +50,10 @@
         "FROM pg_class c",
         "INNER JOIN pg_namespace n",
         "ON n.oid = c.relnamespace",
-        "INNER JOIN pg_catalog.pg_user u",
+        "LEFT JOIN pg_catalog.pg_user u",
         "ON c.relowner = u.usesysid",
         "WHERE n.nspname NOT IN ('pg_catalog', 'information_schema') ",
-        "  AND c.relname NOT LIKE 'pg_%'",
+        "  AND c.relname NOT LIKE 'pg[_]%'",
         "  AND (",
         "    c.relkind='r' --table",
         "    OR c.relkind='v' --view",
@@ -62,7 +62,7 @@
         "    OR c.relkind='f' --foreign table",
         "    OR c.relkind='s' --special",
         "    )",
-        "ORDER BY \"Type\" DESC,c.reltuples DESC;"
+        "ORDER BY n.nspname,\"Type\" DESC,c.reltuples DESC;"
       ],
       "mysql": [
         "SELECT table_schema,table_name,table_rows FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '{dbname}';"
@@ -138,7 +138,7 @@
         "  'LastA: ' || su.last_analyze,",
         "  'LastAutoA: ' || su.last_autoanalyze",
         "FROM pg_stat_user_tables su",
-        "ORDER BY 2"
+        "ORDER BY 1,2"
       ],
       "mysql": [
         "SELECT",
@@ -409,7 +409,7 @@
       ],
       "postgresql": [
         "SELECT",
-        "  --n.nspname AS owner,",
+        "  n.nspname AS owner,",
         "  --a.attnum AS column_seq,",
         "  a.attname AS column_name,",
         "  replace(pg_catalog.format_type(a.atttypid, a.atttypmod),'character varying','varchar') AS data_type,",
@@ -425,9 +425,8 @@
         "WHERE a.attnum > 0",
         "  AND c.relkind='r' --table",
         "  AND NOT a.attisdropped",
-        "  AND n.nspname = 'public'",
         "  AND UPPER(c.relname) = UPPER('{objectname}')",
-        "ORDER BY a.attnum"
+        "ORDER BY n.nspname,a.attnum"
       ],
       "mysql": [
         "SELECT COLUMN_NAME,COLUMN_TYPE,IS_NULLABLE,COLLATION_NAME,COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{dbname}' AND TABLE_NAME = '{objectname}' ORDER BY ORDINAL_POSITION;"
@@ -640,7 +639,8 @@
       "postgresql": [
         "SELECT",
         "  --U.usename AS user_name,",
-        "  --ns.nspname AS schema_name,",
+        "  ns.nspname AS schema_name,",
+        "  idx.indisvalid,",
         "  (SELECT reltuples::numeric(20,0) FROM pg_class WHERE oid = idx.indrelid) AS rowcnt,",
         "  i.reltuples::numeric(20,0) AS idxrowcnt,",
         "  pg_size_pretty(pg_relation_size(sui.indexrelname::text)) AS size,",
@@ -670,7 +670,6 @@
         "--ON i.relowner = U.usesysid",
         "WHERE 1=1",
         "  AND ns.nspname NOT IN ('pg_catalog', 'pg_toast')",
-        "  AND ns.nspname = 'public'",
         "  AND idx.indrelid::REGCLASS = '{objectname}'::REGCLASS",
         "ORDER BY tablename,isprimary DESC,isunique DESC,indexname"
       ],
@@ -891,6 +890,7 @@
       "postgresql": [
         "WITH cte AS(",
         "SELECT",
+        "  ft.table_schema AS FKSchema,",
         "  fc.table_name AS FKeyTable,",
         "  STRING_AGG(fc.column_name, ',' ORDER BY fc.position_in_unique_constraint) AS FKeyColumn,",
         "  pc.table_name AS PrimaryTable,",
@@ -924,10 +924,10 @@
         "  AND pc.constraint_name = pt.constraint_name",
         "WHERE pc.ordinal_position = fc.position_in_unique_constraint",
         "  AND ft.table_catalog = '{dbname}'",
-        "  AND ft.table_schema = 'public'",
         "  AND ft.constraint_type = 'FOREIGN KEY'",
         "  AND UPPER(pt.table_name) = UPPER('{objectname}')",
         "GROUP BY",
+        "  ft.table_schema,",
         "  fc.table_name,",
         "  pc.table_name,",
         "  fc.constraint_name,",
@@ -946,6 +946,7 @@
         "",
         "WITH cte AS(",
         "SELECT",
+        "  ft.table_schema AS FKSchema,",
         "  fc.table_name AS FKeyTable,",
         "  STRING_AGG(fc.column_name, ',' ORDER BY fc.position_in_unique_constraint) AS FKeyColumn,",
         "  pc.table_name AS PrimaryTable,",
@@ -979,10 +980,10 @@
         "  AND pc.constraint_name = pt.constraint_name",
         "WHERE pc.ordinal_position = fc.position_in_unique_constraint",
         "  AND ft.table_catalog = '{dbname}'",
-        "  AND ft.table_schema = 'public'",
         "  AND ft.constraint_type = 'FOREIGN KEY'",
         "  AND UPPER(ft.table_name) = UPPER('{objectname}')",
         "GROUP BY",
+        "  ft.table_schema,",
         "  fc.table_name,",
         "  pc.table_name,",
         "  fc.constraint_name,",
