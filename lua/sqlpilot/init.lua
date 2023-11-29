@@ -7,10 +7,9 @@ local M = {}
 
 M.sqlpilot_dict_command_param = {}
 
---  ╒══════════════════════════════════════════════════════════════════════════════╕
---    DB Connection settings {{{
+-- DB Connection settings
 -- stylua: ignore
-local sql_set_sqlpilot_dict_command_param = function(product, dbenv)--{{{
+local sql_set_sqlpilot_dict_command_param = function(product, dbenv)
   M.sqlpilot_dict_command_param.dbms      = product.dbms
   M.sqlpilot_dict_command_param.loginname = dbenv["loginname"] ~= nil and dbenv["loginname"] or product["loginname"]
   M.sqlpilot_dict_command_param.password  = dbenv["password"] ~= nil and dbenv["password"] or product["password"]
@@ -21,10 +20,10 @@ local sql_set_sqlpilot_dict_command_param = function(product, dbenv)--{{{
 
   autocmd.sql_create_autocmd(M.sqlpilot_dict_command_param.dbms)
   keymap.sql_remove_invalid_whichkey_entries()
-end--}}}
+end
 
 -- stylua: ignore
-function M.sql_print_sqlpilot_dict_command_param(flag)--{{{
+function M.sql_print_sqlpilot_dict_command_param(flag)
   if flag == nil or flag ~= 1 then
     print(string.format("current setting: [%s (%s)] %s.%s"
       ,tostring(M.sqlpilot_dict_command_param.alias)
@@ -45,16 +44,14 @@ function M.sql_print_sqlpilot_dict_command_param(flag)--{{{
       .."command: "  ..tostring(M.sqlpilot_dict_command_param.command)  .."\n"
     )
   end
-end--}}}
+end
 
-function M.sql_select_db() --{{{
+function M.sql_select_db()
   if M.sqlpilot_dict_command_param["dbms"] == nil then
     M.sql_select_dbenv()
   end
 
-  --  ┌                                                                              ┐
-  --  │ for db choice                                                                │
-  --  └                                                                              ┘
+  -- for db choice
   local dbname_list = M.sqlpilot_dict_command_param.dbname_list
 
   vim.ui.select(dbname_list, { prompt = "Please choice dbname:" }, function(_, idx)
@@ -70,12 +67,10 @@ function M.sql_select_db() --{{{
 
     M.sqlpilot_dict_command_param.dbname = dbname
   end)
-end --}}}
+end
 
-local sql_select_dbenv_individual = function(product) --{{{
-  --  ┌                                                                              ┐
-  --  │ for dbenv choice                                                             │
-  --  └                                                                              ┘
+local sql_select_dbenv_individual = function(product)
+  -- for dbenv choice
   vim.ui.select(product.dbenv, {
     prompt = "Please choice dbenv:",
     format_item = function(item)
@@ -95,12 +90,10 @@ local sql_select_dbenv_individual = function(product) --{{{
     sql_set_sqlpilot_dict_command_param(product, dbenv)
     M.sql_select_db()
   end)
-end --}}}
+end
 
-function M.sql_select_dbenv() --{{{
-  --  ┌                                                                              ┐
-  --  │ for product choice                                                           │
-  --  └                                                                              ┘
+function M.sql_select_dbenv()
+  -- for product choice
   local sorted_product_name = {}
   for product_name, _ in pairs(M.dict_conn.Product) do
     table.insert(sorted_product_name, product_name)
@@ -114,12 +107,10 @@ function M.sql_select_dbenv() --{{{
     end
     sql_select_dbenv_individual(product)
   end)
-end --}}}
+end
 
-local sql_change_dbenv_password = function() -- {{{
-  --  ┌                                                                              ┐
-  --  │ for sqlpilot_dict_command_param.password                                     │
-  --  └                                                                              ┘
+local sql_change_dbenv_password = function()
+  -- for sqlpilot_dict_command_param.password
   vim.cmd("redraw!")
   local message = string.format(
     "[%s]%s.%s.%s.<%s>",
@@ -151,12 +142,10 @@ local sql_change_dbenv_password = function() -- {{{
       print("Current Setting: " .. message)
     end
   end)
-end -- }}}
+end
 
-local sql_change_dbenv_loginname = function() -- {{{
-  --  ┌                                                                              ┐
-  --  │ for sqlpilot_dict_command_param.loginname                                    │
-  --  └                                                                              ┘
+local sql_change_dbenv_loginname = function()
+  -- for sqlpilot_dict_command_param.loginname
   vim.cmd("redraw!")
   local message = string.format(
     "[%s]%s.%s.<%s>",
@@ -177,12 +166,10 @@ local sql_change_dbenv_loginname = function() -- {{{
       sql_change_dbenv_password()
     end
   end)
-end -- }}}
+end
 
-local sql_change_dbenv_dbname = function() -- {{{
-  --  ┌                                                                              ┐
-  --  │ for sqlpilot_dict_command_param.dbname                                       │
-  --  └                                                                              ┘
+local sql_change_dbenv_dbname = function()
+  -- for sqlpilot_dict_command_param.dbname
   vim.cmd("redraw!")
   local message = string.format(
     "[%s]%s.<%s>",
@@ -202,12 +189,10 @@ local sql_change_dbenv_dbname = function() -- {{{
       sql_change_dbenv_loginname()
     end
   end)
-end -- }}}
+end
 
-local sql_change_dbenv_port = function() -- {{{
-  --  ┌                                                                              ┐
-  --  │ for sqlpilot_dict_command_param.port                                         │
-  --  └                                                                              ┘
+local sql_change_dbenv_port = function()
+  -- for sqlpilot_dict_command_param.port
   vim.cmd("redraw!")
   local message = string.format("<%s>", M.sqlpilot_dict_command_param.port)
   local sql_cli = M.dict_run.dbms[M.sqlpilot_dict_command_param.dbms].sql_cli
@@ -225,12 +210,10 @@ local sql_change_dbenv_port = function() -- {{{
       end
     end)
   end
-end -- }}}
+end
 
-local sql_change_dbenv_dbserver = function() -- {{{
-  --  ┌                                                                              ┐
-  --  │ for sqlpilot_dict_command_param.dbserver                                     │
-  --  └                                                                              ┘
+local sql_change_dbenv_dbserver = function()
+  -- for sqlpilot_dict_command_param.dbserver
   vim.cmd("redraw!")
   local message = string.format(
     "[%s]<%s>",
@@ -250,45 +233,41 @@ local sql_change_dbenv_dbserver = function() -- {{{
       sql_change_dbenv_port()
     end
   end)
-end -- }}}
+end
 
-function M.sql_change_dbenv() --{{{
+function M.sql_change_dbenv()
   if M.sqlpilot_dict_command_param["dbms"] == nil then
     M.sql_select_dbenv()
   end
 
   sql_change_dbenv_dbserver()
-end --}}}
+end
 
-function M.sql_reset_dbenv() --{{{
+function M.sql_reset_dbenv()
   if M.sqlpilot_dict_command_param["dbms"] ~= nil then
     M.sqlpilot_dict_command_param.dbms = nil
   end
 
   config.dict_conn = util.jsonfile_to_dict(M.options.sql_conn)
   M.sql_select_dbenv()
-end --}}}
+end
 
---}}}
---  ╘══════════════════════════════════════════════════════════════════════════════╛
-
---  ╒══════════════════════════════════════════════════════════════════════════════╕
--- DB Query window {{{
-local sql_param_gsub = function(text, param_gsub) --{{{
+-- DB Query window
+local sql_param_gsub = function(text, param_gsub)
   for key, value in pairs(param_gsub) do
     text = string.gsub(text, "{" .. key .. "}", value)
   end
   return text
-end --}}}
+end
 
-local sql_prepare_infile_outfile = function() --{{{
+local sql_prepare_infile_outfile = function()
   local tmpname = os.tmpname()
   M.sqlpilot_dict_command_param.infile = tmpname .. ".sql"
   M.sqlpilot_dict_command_param.outfile = tmpname .. ".out"
   os.remove(tmpname)
-end --}}}
+end
 
-local sql_write_query_to_infile = function(query) --{{{
+local sql_write_query_to_infile = function(query)
   local sql_cli = M.dict_run.dbms[M.sqlpilot_dict_command_param.dbms].sql_cli
 
   query = string.format(
@@ -302,9 +281,9 @@ local sql_write_query_to_infile = function(query) --{{{
   M.sqlpilot_dict_command_param.query = query
   vim.fn.setreg(M.dict_registers.query, query)
   util.string_to_file(query, M.sqlpilot_dict_command_param.infile)
-end --}}}
+end
 
-local function sql_load_query_result_to_buffer(bufno, param_gsub) -- {{{
+local function sql_load_query_result_to_buffer(bufno, param_gsub)
   -- for lualine inactive buffer
   vim.b.sqlpilot_display_result = string.format(
     "%s.%s ∞ %s ∞",
@@ -335,9 +314,9 @@ local function sql_load_query_result_to_buffer(bufno, param_gsub) -- {{{
   end
 
   vim.api.nvim_buf_set_lines(bufno, 0, -1, false, array)
-end -- }}}
+end
 
-local sql_execute_command = function(sql_run_command_type, vim_cmd, param_gsub) --{{{
+local sql_execute_command = function(sql_run_command_type, vim_cmd, param_gsub)
   local sql_run_command =
     M.dict_run.dbms[M.sqlpilot_dict_command_param.dbms][sql_run_command_type].command
 
@@ -375,9 +354,9 @@ local sql_execute_command = function(sql_run_command_type, vim_cmd, param_gsub) 
       sql_load_query_result_to_buffer(bufno, param_gsub)
     end,
   })
-end --}}}
+end
 
-function M.sql_adhoc_query_result(sql_run_command_type) --{{{
+function M.sql_adhoc_query_result(sql_run_command_type)
   if M.sqlpilot_dict_command_param["dbms"] == nil then
     M.sql_select_dbenv()
   end
@@ -391,9 +370,9 @@ function M.sql_adhoc_query_result(sql_run_command_type) --{{{
 
   sql_write_query_to_infile(query)
   sql_execute_command(sql_run_command_type, "new")
-end --}}}
+end
 
-function M.sql_list_dbobject_attribute(attribute_query, vim_cmd) --{{{
+function M.sql_list_dbobject_attribute(attribute_query, vim_cmd)
   if M.sqlpilot_dict_command_param["dbms"] == nil then
     M.sql_select_dbenv()
   end
@@ -414,14 +393,10 @@ function M.sql_list_dbobject_attribute(attribute_query, vim_cmd) --{{{
 
   sql_write_query_to_infile(query)
   sql_execute_command("sql_cli", vim_cmd)
-end --}}}
+end
 
---}}}
---  ╘══════════════════════════════════════════════════════════════════════════════╛
-
---  ╒══════════════════════════════════════════════════════════════════════════════╕
--- Scripting out DB object {{{
-function M.sql_scriptout_object() --{{{
+-- Scripting out DB object
+function M.sql_scriptout_object()
   if M.sqlpilot_dict_command_param["dbms"] == nil then
     M.sql_select_dbenv()
   end
@@ -433,14 +408,10 @@ function M.sql_scriptout_object() --{{{
   param_gsub.scriptpath = M.plugin_path .. "/scripts"
 
   sql_execute_command("sql_ddl", "new", param_gsub)
-end --}}}
+end
 
---}}}
---  ╘══════════════════════════════════════════════════════════════════════════════╛
-
---  ╒══════════════════════════════════════════════════════════════════════════════╕
--- Format {{{
-function M.sql_format_slash_toggle() --{{{
+-- Format
+function M.sql_format_slash_toggle()
   local current_line = vim.api.nvim_get_current_line()
   if vim.regex("\\"):match_str(current_line) ~= nil then
     current_line, _ = string.gsub(current_line, "\\", "/")
@@ -448,29 +419,20 @@ function M.sql_format_slash_toggle() --{{{
     current_line, _ = string.gsub(current_line, "/", "\\")
   end
   vim.api.nvim_set_current_line(current_line)
-end --}}}
+end
 
---}}}
---  ╘══════════════════════════════════════════════════════════════════════════════╛
-
---  ╒══════════════════════════════════════════════════════════════════════════════╕
--- Misc {{{
-function M.sql_create_tempfile() --{{{
+-- Misc
+function M.sql_create_tempfile()
   local tmpname = os.tmpname()
   os.remove(tmpname)
   vim.cmd("silent write " .. tmpname .. ".sql")
-end --}}}
+end
 
-function M.reset() --{{{
+function M.reset()
   require("plenary.reload").reload_module("sqlpilot")
   require("sqlpilot").setup()
-end --}}}
-
---}}}
---  ╘══════════════════════════════════════════════════════════════════════════════╛
+end
 
 setmetatable(M, config)
 
 return M
-
--- vim: fdm=marker fdc=2

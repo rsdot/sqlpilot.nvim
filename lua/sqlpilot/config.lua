@@ -1,5 +1,5 @@
-local util = require("sqlpilot.util")
 local keymap = require("sqlpilot.keymap")
+local util = require("sqlpilot.util")
 
 local M = {}
 
@@ -12,7 +12,7 @@ M.dict_registers = {}
 M.dict_which_key_registers = {}
 
 -- stylua: ignore
-local defaults = { -- {{{
+local defaults = {
   sql_conn  = M.plugin_path .. "/resources/sql_conn.json",
   sql_query = M.plugin_path .. "/resources/sql_query.json",
   sql_run   = M.plugin_path .. "/resources/sql_run.json",
@@ -24,10 +24,10 @@ local defaults = { -- {{{
     normal = "f", -- default which-key normal mode key register
     visual = "f", -- default which-key visual mode key register
   },
-} -- }}}
+}
 
 -- stylua: ignore
-function M.setup(options) -- {{{
+function M.setup(options)
   M.options = vim.tbl_deep_extend("force", {}, defaults, options or {})
   -- print(vim.inspect(M.options))
 
@@ -44,18 +44,18 @@ function M.setup(options) -- {{{
 
   keymap.sql_set_keymap()
   keymap.sql_set_whichkey_initial_keymap()
-end -- }}}
+end
 
-M.__index = function(t, k) -- {{{
+M.__index = function(t, k)
   if M[k] == nil then
     print("can't find declared variables")
     return nil
   else
     return M[k]
   end
-end -- }}}
+end
 
-M.__newindex = function(t, k, v) -- {{{
+M.__newindex = function(t, k, v)
   if M[k] == nil then
     print(
       string(
@@ -67,8 +67,6 @@ M.__newindex = function(t, k, v) -- {{{
     )
     return nil
   end
-end -- }}}
+end
 
 return M
-
--- vim: fdm=marker fdc=2

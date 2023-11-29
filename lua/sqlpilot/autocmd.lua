@@ -2,7 +2,7 @@ local keymap = require("sqlpilot.keymap")
 
 local M = {}
 
-function M.sql_create_autocmd(dbms) -- {{{
+function M.sql_create_autocmd(dbms)
   local language
   if dbms == "mysql" then
     language = "mysql"
@@ -28,6 +28,7 @@ function M.sql_create_autocmd(dbms) -- {{{
     keymap.sql_text_expander()
   end
 
+  -- stylua: ignore start
   vim.api.nvim_create_augroup("sqlpilot", { clear = true })
   vim.api.nvim_create_autocmd(
     "Filetype",
@@ -35,14 +36,9 @@ function M.sql_create_autocmd(dbms) -- {{{
   )
   vim.api.nvim_create_autocmd(
     "Filetype",
-    {
-      group = "sqlpilot",
-      pattern = "sql",
-      command = [[match Sql_Semicolon_WhitespaceEOL /\(;\s*\|\s\+\)$/]],
-    }
+    { group = "sqlpilot", pattern = "sql", command = [[match Sql_Semicolon_WhitespaceEOL /\(;\s*\|\s\+\)$/]] }
   )
-end -- }}}
+  -- stylua: ignore end
+end
 
 return M
-
--- vim: fdm=marker fdc=2

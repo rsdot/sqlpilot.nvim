@@ -6,32 +6,31 @@ end
 
 local M = {}
 
---  ┌──────────────────────────────────────────────────────────────────────────────┐
---    locals {{{
+-- locals
 local ks = vim.keymap.set
 local display_icon = "󰆼"
 
 -- stylua: ignore start
-local whichkey_initial_map = { -- {{{
+local whichkey_initial_map = {
   create_tempfile  = { display = display_icon .. " create temp file", sql_mapping = "w" },
   scriptout_object = { display = display_icon .. " scriptout",        sql_mapping = "5" },
   select_dbenv     = { display = display_icon .. " list db env",      sql_mapping = ";" },
   change_dbenv     = { display = display_icon .. " change env",       sql_mapping = ":" },
   select_db        = { display = display_icon .. " list env db",      sql_mapping = "," },
   reset_dbenv      = { display = display_icon .. " reset env",        sql_mapping = "." },
-} -- }}}
+}
 
-local whichkey_initial_v_map = { -- {{{
+local whichkey_initial_v_map = {
   adhoc_query_result_csv     = { display = display_icon .. " run csv",   sql_mapping = "d", sql_run_command_type = "sql_csv" },
   adhoc_query_result_cli_raw = { display = display_icon .. " run query", sql_mapping = "f", sql_run_command_type = "sql_cli" },
-} -- }}}
+}
 
-local whichkey_initial_format_map = { -- {{{
+local whichkey_initial_format_map = {
   _forward  = { display = display_icon .. " /",  sql_mapping = "/" },
   _backword = { display = display_icon .. " \\", sql_mapping = "\\" },
-} -- }}}
+}
 
-local whichkey_dbobject_attribute_map = { -- {{{
+local whichkey_dbobject_attribute_map = {
   selecttabledata_all         = { display = display_icon .. " select all",            sql_mapping = "a", vim_cmd = "new" },
   selecttabledata_top         = { display = display_icon .. " select top 100",        sql_mapping = "z", vim_cmd = "new" },
   selecttablecount            = { display = display_icon .. " select count",          sql_mapping = "c", vim_cmd = "new" },
@@ -47,56 +46,53 @@ local whichkey_dbobject_attribute_map = { -- {{{
   listfktables                = { display = display_icon .. " show fktables",         sql_mapping = "8", vim_cmd = "new" },
   listmetadata                = { display = display_icon .. " show metadata",         sql_mapping = "9", vim_cmd = "new" },
   referencedby                = { display = display_icon .. " show referencedby",     sql_mapping = "0", vim_cmd = "new" },
-} -- }}}
+}
 -- stylua: ignore end
 
-local n_opts = { -- {{{
+local n_opts = {
   mode = "n", -- NORMAL mode
   prefix = "<leader>",
   buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
   silent = true, -- use `silent` when creating keymaps
   noremap = true, -- use `noremap` when creating keymaps
   nowait = true, -- use `nowait` when creating keymaps
-} -- }}}
+}
 
-local v_opts = { -- {{{
+local v_opts = {
   mode = "v", -- visual mode
   prefix = "<leader>",
   buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
   silent = true, -- use `silent` when creating keymaps
   noremap = true, -- use `noremap` when creating keymaps
   nowait = true, -- use `nowait` when creating keymaps
-} -- }}}
+}
 
-local function n_reg() -- {{{
+local function n_reg()
   return require("sqlpilot.config").dict_which_key_registers.normal
-end -- }}}
+end
 
-local function v_reg() -- {{{
+local function v_reg()
   return require("sqlpilot.config").dict_which_key_registers.visual
-end -- }}}
+end
 
-local function which_key_n_deregister(object_attribute, prefix, mode) -- {{{
+local function which_key_n_deregister(object_attribute, prefix, mode)
   local m = whichkey_dbobject_attribute_map[object_attribute]
   local mapping = (prefix or "<leader>") .. n_reg() .. m.sql_mapping
   pcall(vim.api.nvim_del_keymap, mode or "n", mapping)
   which_key.register({ [mapping] = "which_key_ignore" })
-end -- }}}
+end
 
-local function which_key_n_register(object_attribute) -- {{{
+local function which_key_n_register(object_attribute)
   local m = whichkey_dbobject_attribute_map[object_attribute]
-  --[[ vim.pretty_print(m) ]]
+  --[[ vim.print(m) ]]
 
   local n_mappings =
     { [n_reg()] = { [m.sql_mapping] = { "<Plug>(sql_" .. object_attribute .. ")", m.display } } }
 
   which_key.register(n_mappings, n_opts)
-end -- }}}
+end
 
--- }}}
---  └──────────────────────────────────────────────────────────────────────────────┘
-
-function M.sql_remove_invalid_whichkey_entries() -- {{{
+function M.sql_remove_invalid_whichkey_entries()
   local config = require("sqlpilot.config")
   local sqlpilot = require("sqlpilot")
 
@@ -110,12 +106,10 @@ function M.sql_remove_invalid_whichkey_entries() -- {{{
       which_key_n_register(object_attribute)
     end
   end
-end -- }}}
+end
 
-function M.sql_set_whichkey_initial_keymap() -- {{{
-  --  ┌                                                                              ┐
-  --  │ normal mode                                                                  │
-  --  └                                                                              ┘
+function M.sql_set_whichkey_initial_keymap()
+  -- normal mode
   local n_mappings =
     { [n_reg()] = { name = display_icon .. " Sql", F = { name = display_icon .. " Sql format" } } }
   which_key.register(n_mappings, n_opts)
@@ -132,9 +126,7 @@ function M.sql_set_whichkey_initial_keymap() -- {{{
     which_key.register(n_mappings, n_opts)
   end
 
-  --  ┌                                                                              ┐
-  --  │ visual mode                                                                  │
-  --  └                                                                              ┘
+  -- visual mode
   local v_mappings = {
     [v_reg()] = {
       name = display_icon .. " Sql",
@@ -147,9 +139,9 @@ function M.sql_set_whichkey_initial_keymap() -- {{{
       { [v_reg()] = { [m.sql_mapping] = { "<Plug>(sql_" .. o .. ")", m.display } } }
     which_key.register(v_mappings, v_opts)
   end
-end -- }}}
+end
 
-function M.sql_set_keymap() -- {{{
+function M.sql_set_keymap()
   local opts = { silent = true }
 
   -- visual map
@@ -194,10 +186,10 @@ function M.sql_set_keymap() -- {{{
     '<CMD>lua require("sqlpilot").sql_format_slash_toggle()<CR>',
     opts
   )
-end -- }}}
+end
 
 -- stylua: ignore
-function M.sql_text_expander() -- {{{
+function M.sql_text_expander()
   local opts = { silent = true, noremap = true, buffer = 0 }
 
   ks("i", ";s", "SELECT "          , opts)
@@ -229,8 +221,6 @@ function M.sql_text_expander() -- {{{
   ks("c", "3))", "\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)"                                , opts)
   ks("c", "4))", "\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)"                , opts)
   ks("c", "5))", "\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)\\t\\([^\\t]*\\)", opts)
-end -- }}}
+end
 
 return M
-
--- vim: fdm=marker fdc=2
