@@ -64,6 +64,30 @@
         "    )",
         "ORDER BY n.nspname,\"Type\" DESC,c.reltuples DESC;"
       ],
+      "redshift": [
+        "SELECT",
+        "  n.nspname AS schemaname,",
+        "  c.relname AS objectname,",
+        "  CAST(c.reltuples AS numeric(20,0)) AS rowcnt,",
+        "  CASE c.relkind WHEN 'r' THEN 'table' WHEN 'v' THEN 'view' WHEN 'i' THEN 'index' WHEN 'S' THEN 'sequence' WHEN 's' THEN 'special' WHEN 'f' THEN 'foreign table' END AS \"Type\",",
+        "  u.usename as ownername",
+        "FROM pg_class c",
+        "INNER JOIN pg_namespace n",
+        "ON n.oid = c.relnamespace",
+        "LEFT JOIN pg_catalog.pg_user u",
+        "ON c.relowner = u.usesysid",
+        "WHERE n.nspname NOT IN ('pg_catalog', 'information_schema') ",
+        "  AND c.relname NOT LIKE 'pg[_]%'",
+        "  AND (",
+        "    c.relkind='r' --table",
+        "    OR c.relkind='v' --view",
+        "--    OR c.relkind='i' --index",
+        "    OR c.relkind='S' --sequence",
+        "    OR c.relkind='f' --foreign table",
+        "    OR c.relkind='s' --special",
+        "    )",
+        "ORDER BY n.nspname,\"Type\" DESC,c.reltuples DESC;"
+      ],
       "mysql": [
         "SELECT table_schema,table_name,table_rows FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '{dbname}';"
       ],
@@ -1082,6 +1106,9 @@
       "postgresql": [
         "SELECT * FROM {objectname}"
       ],
+      "redshift": [
+        "SELECT * FROM {objectname}"
+      ],
       "mysql": [
         "SELECT * FROM {objectname}"
       ],
@@ -1102,6 +1129,9 @@
       "postgresql": [
         "SELECT * FROM {objectname} LIMIT 100"
       ],
+      "redshift": [
+        "SELECT * FROM {objectname} LIMIT 100"
+      ],
       "mysql": [
         "SELECT * FROM {objectname} LIMIT 100"
       ],
@@ -1120,6 +1150,9 @@
         "SELECT COUNT(1) AS \"{objectname}\" FROM {objectname};"
       ],
       "postgresql": [
+        "SELECT COUNT(1) AS \"{objectname}\" FROM {objectname}"
+      ],
+      "redshift": [
         "SELECT COUNT(1) AS \"{objectname}\" FROM {objectname}"
       ],
       "mysql": [
