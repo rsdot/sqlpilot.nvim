@@ -4,20 +4,19 @@ A neovim plugin for navigating database schemas and executing custom queries acr
 
 ## Why?
 
-- ❤️  **KISS**:
+- ❤️ **KISS**:
   <ol>Designed to be loose couple interaction with a variety type of DBs' CLI utility and <b>sqlpilot.nvim</b>.</ol>
 - 🚀 **Fast**:
   <ol>Async execution of query without blocking editing mode.</ol>
 - 🌟 **Featured**:
   <ol>
-  <li>Bundled with common used queries supporting Oracle, MySQL, PostgreSQL, Aurora MySQL/PostgreSQL, MongoDB, Cassandra, SQL Server (<I>coming soon</I>)</li>
+  <li>Bundled with common used queries supporting Oracle, MySQL, PostgreSQL, Aurora MySQL/PostgreSQL, MongoDB, Cassandra</li>
   <li>Text expander in Insert mode for dozens of SQL keywords.</li>
   <li>Underline query and CLI command executed with actual parameter values can be easily obtained for troubleshooting.</li>
   <li>Display current connected DBs and snapshot of execution time in previous run result buffer window together with <a href="https://github.com/nvim-lualine/lualine.nvim">lualine</a>.</li>
   </ol>
 - 💎 **Extensibility**:
   <ol>Fully customized scripts in language of your choice to extend support of other DBs with command line interface(CLI).</ol>
-
 
 ## Installation
 
@@ -31,103 +30,117 @@ A neovim plugin for navigating database schemas and executing custom queries acr
 
 2. use `sqlpilot.nvim`
 
-    ```lua
-    use {
-      "rsdot/sqlpilot.nvim",
-      requires = "folke/which-key.nvim",
-      config = function()
-        require("sqlpilot").setup {
-          sql_conn  = vim.fn.glob("~").."/projects/xxxx/sqlpilot.nvim/resources/sql_conn.json", -- required
-        }
-      end
-    }
-    ```
+   ```lua
+   use {
+     "rsdot/sqlpilot.nvim",
+     requires = "folke/which-key.nvim",
+     config = function()
+       require("sqlpilot").setup {
+         sql_conn  = vim.fn.glob("~").."/projects/xxxx/sqlpilot.nvim/resources/sql_conn.json", -- required
+       }
+     end
+   }
+   ```
 
+#### with [LazyVim](https://github.com/LazyVim/LazyVim)
+
+1. obtain a copy of [resources/sql_conn.json](resources/sql_conn.json), change appropriately and stored in `~/projects/xxxx/sqlpilot.nvim/resources/sql_conn.json` (example path)
+
+2. use `sqlpilot.nvim`
+
+   ```lua
+   return {
+     "rsdot/sqlpilot.nvim",
+     dependencies = "folke/which-key.nvim",
+     opts = {
+       sql_conn  = vim.fn.expand("~").."/projects/xxxx/sqlpilot.nvim/resources/sql_conn.json", -- required
+     },
+   }
+   ```
 
 ## Configuration
 
 1. Integration with [lualine](https://github.com/nvim-lualine/lualine.nvim) to display current connected DBs and snapshot of execution time in previous run result buffer window
 
-    <details><summary>Example of setup with lualine</summary>
+   <details><summary>Example of setup with lualine</summary>
 
-    ```lua
-    local sqlpilot = require("sqlpilot")
+   ```lua
+   local sqlpilot = require("sqlpilot")
 
-    local function db_conn_string()
-      if sqlpilot.sqlpilot_dict_command_param.alias ~= nil and
-        sqlpilot.sqlpilot_dict_command_param.dbname ~= nil then
-        local dbmstype = sqlpilot.sqlpilot_dict_command_param.dbms
-        local dbmsicon = ''
-        if dbmstype == 'mssql' then
-          dbmsicon = ''
-        elseif dbmstype == 'mysql' then
-          dbmsicon = ''
-        elseif dbmstype == 'postgresql' then
-          dbmsicon = ''
-        elseif dbmstype == 'cassandra' then
-          dbmsicon = ''
-        elseif dbmstype == 'mongodb' then
-          dbmsicon = ''
-        elseif dbmstype == 'oracle' then
-          dbmsicon = ''
-        end
+   local function db_conn_string()
+     if sqlpilot.sqlpilot_dict_command_param.alias ~= nil and
+       sqlpilot.sqlpilot_dict_command_param.dbname ~= nil then
+       local dbmstype = sqlpilot.sqlpilot_dict_command_param.dbms
+       local dbmsicon = ''
+       if dbmstype == 'mssql' then
+         dbmsicon = ''
+       elseif dbmstype == 'mysql' then
+         dbmsicon = ''
+       elseif dbmstype == 'postgresql' then
+         dbmsicon = ''
+       elseif dbmstype == 'cassandra' then
+         dbmsicon = ''
+       elseif dbmstype == 'mongodb' then
+         dbmsicon = ''
+       elseif dbmstype == 'oracle' then
+         dbmsicon = ''
+       end
 
-        return '⟛ ' .. dbmsicon .. sqlpilot.sqlpilot_dict_command_param.alias .. '.' .. sqlpilot.sqlpilot_dict_command_param.dbname
-      else
-		return "󰆼"
-      end
-    end
+       return '⟛ ' .. dbmsicon .. sqlpilot.sqlpilot_dict_command_param.alias .. '.' .. sqlpilot.sqlpilot_dict_command_param.dbname
+     else
+   	return "󰆼"
+     end
+   end
 
-    local dbconn_prod = {
-      'dbconn_prod',
-      cons_enabled = true,
-      icon = '󰆼',
-      fmt = db_conn_string,
-      color = {fg = '#a14f6d', gui='italic,bold'},
-      cond = function()
-        return sqlpilot.sqlpilot_dict_command_param.alias ~= nil and sqlpilot.sqlpilot_dict_command_param.isprod == 1
-      end,
-    }
+   local dbconn_prod = {
+     'dbconn_prod',
+     cons_enabled = true,
+     icon = '󰆼',
+     fmt = db_conn_string,
+     color = {fg = '#a14f6d', gui='italic,bold'},
+     cond = function()
+       return sqlpilot.sqlpilot_dict_command_param.alias ~= nil and sqlpilot.sqlpilot_dict_command_param.isprod == 1
+     end,
+   }
 
-    local dbconn_nonprod = {
-      'dbconn_nonprod',
-      cons_enabled = true,
-      icon = '󰆼',
-      fmt = db_conn_string,
-      color = {fg = '#63c259', gui='italic'},
-      cond = function()
-        return sqlpilot.sqlpilot_dict_command_param.alias ~= nil and sqlpilot.sqlpilot_dict_command_param.isprod == 0
-      end,
-    }
+   local dbconn_nonprod = {
+     'dbconn_nonprod',
+     cons_enabled = true,
+     icon = '󰆼',
+     fmt = db_conn_string,
+     color = {fg = '#63c259', gui='italic'},
+     cond = function()
+       return sqlpilot.sqlpilot_dict_command_param.alias ~= nil and sqlpilot.sqlpilot_dict_command_param.isprod == 0
+     end,
+   }
 
-    local dbresult = {
-      'dbresult',
-      fmt = function()
-        return vim.b.sqlpilot_display_result ~= nil and vim.b.sqlpilot_display_result or ''
-      end,
-      color = {fg = '#5f5f87'},
-    }
+   local dbresult = {
+     'dbresult',
+     fmt = function()
+       return vim.b.sqlpilot_display_result ~= nil and vim.b.sqlpilot_display_result or ''
+     end,
+     color = {fg = '#5f5f87'},
+   }
 
-    require("lualine").setup({
-      ...
-      sections = {
-        ...
-        lualine_c = { dbresult },
-        lualine_x = { dbconn_prod, dbconn_nonprod },
-        ...
-      },
-      inactive_sections = {
-        ...
-        lualine_c = { dbresult },
-        lualine_x = {},
-        ...
-      },
-      ...
-    })
-    ```
+   require("lualine").setup({
+     ...
+     sections = {
+       ...
+       lualine_c = { dbresult },
+       lualine_x = { dbconn_prod, dbconn_nonprod },
+       ...
+     },
+     inactive_sections = {
+       ...
+       lualine_c = { dbresult },
+       lualine_x = {},
+       ...
+     },
+     ...
+   })
+   ```
 
-    </details>
-
+   </details>
 
 ## Usage examples
 
@@ -136,7 +149,7 @@ A neovim plugin for navigating database schemas and executing custom queries acr
 In `Insert` mode
 
 | type | substituted with |
-|------|------------------|
+| ---- | ---------------- |
 | `;s` | `SELECT `        |
 | `;f` | `FROM `          |
 | `;w` | `WHERE `         |
@@ -158,9 +171,10 @@ In `Insert` mode
 
 <details><summary>Executing ad-hoc queries</summary>
 
-`<space>f;` to setup DB connection, in `Visual Line` mode, select lines, then `<space>ff` to run query **async**. Result would show up in the buffer window once they are ready, not blocking current editing 
+`<space>f;` to setup DB connection, in `Visual Line` mode, select lines, then `<space>ff` to run query **async**. Result would show up in the buffer window once they are ready, not blocking current editing
 
 **mysql** example
+
 ```sql
 SELECT now();
 SELECT SLEEP(10);
@@ -174,7 +188,6 @@ SELECT now();
 In `Normal` mode, move cursor on top of a table name, then `<space>f4` to view index defintion of the table under the cursor
 
 </details>
-
 
 ## Extensibility
 
@@ -221,7 +234,7 @@ obtain a copy of [resources/sql_query.json](resources/sql_query.json), change ap
 
 <details open><summary>Put all together</summary>
 
-use `sqlpilot.nvim`
+use `sqlpilot.nvim` in packer
 
 ```lua
 use {
@@ -242,6 +255,28 @@ use {
     }
   end
 }
+```
+
+use `sqlpilot.nvim` in LazyVim
+
+```lua
+   return {
+     "rsdot/sqlpilot.nvim",
+     dependencies = "folke/which-key.nvim",
+     opts = {
+       sql_conn  = vim.fn.glob("~").."/projects/xxxx/sqlpilot.nvim/resources/sql_conn.json", -- required
+       sql_query = vim.fn.glob("~").."/projects/xxxx/sqlpilot.nvim/resources/sql_query.json", -- overwrite default
+       sql_run   = vim.fn.glob("~").."/projects/xxxx/sqlpilot.nvim/resources/sql_run.json",   -- overwrite default
+       registers = {
+         cmd   = "y", -- default vim register to store last used cmd                          -- change to other register if needed
+         query = "z"  -- default vim register to store last used query                        -- change to other register if needed
+       },
+       which_key_registers = {
+         normal = "f", -- default which-key normal mode key register                          -- change to avoid conflicting with existing
+         visual = "f", -- default which-key visual mode key register                          -- change to avoid conflicting with existing
+       }
+     },
+   }
 ```
 
 - In `Normal` mode, `"yp` will paste content from register `y`, which stores last used cmd with actual parameter values
