@@ -49,24 +49,6 @@ local whichkey_dbobject_attribute_map = {
 }
 -- stylua: ignore end
 
-local n_opts = {
-  mode = "n", -- NORMAL mode
-  prefix = "<leader>",
-  buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
-  silent = true, -- use `silent` when creating keymaps
-  noremap = true, -- use `noremap` when creating keymaps
-  nowait = true, -- use `nowait` when creating keymaps
-}
-
-local v_opts = {
-  mode = "v", -- visual mode
-  prefix = "<leader>",
-  buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
-  silent = true, -- use `silent` when creating keymaps
-  noremap = true, -- use `noremap` when creating keymaps
-  nowait = true, -- use `nowait` when creating keymaps
-}
-
 local function n_reg()
   return require("sqlpilot.config").dict_which_key_registers.normal
 end
@@ -79,17 +61,26 @@ local function which_key_n_deregister(object_attribute, prefix, mode)
   local m = whichkey_dbobject_attribute_map[object_attribute]
   local mapping = (prefix or "<leader>") .. n_reg() .. m.sql_mapping
   pcall(vim.api.nvim_del_keymap, mode or "n", mapping)
-  which_key.register({ [mapping] = "which_key_ignore" })
+  which_key.add({ { mapping, hidden = true } })
 end
 
 local function which_key_n_register(object_attribute)
   local m = whichkey_dbobject_attribute_map[object_attribute]
   --[[ vim.print(m) ]]
 
-  local n_mappings =
-    { [n_reg()] = { [m.sql_mapping] = { "<Plug>(sql_" .. object_attribute .. ")", m.display } } }
+  local key = "<leader>" .. n_reg() .. m.sql_mapping
+  local n_mappings = {
+    {
+      key,
+      "<Plug>(sql_" .. object_attribute .. ")",
+      desc = m.display,
+      nowait = true,
+      remap = false,
+      silent = true,
+    },
+  }
 
-  which_key.register(n_mappings, n_opts)
+  which_key.add(n_mappings)
 end
 
 function M.sql_remove_invalid_whichkey_entries()
@@ -110,34 +101,65 @@ end
 
 function M.sql_set_whichkey_initial_keymap()
   -- normal mode
-  local n_mappings =
-    { [n_reg()] = { name = display_icon .. " Sql", F = { name = display_icon .. " Sql format" } } }
-  which_key.register(n_mappings, n_opts)
+  local key = "<leader>" .. n_reg()
+  which_key.add({
+    { key, group = display_icon .. " Sql", nowait = true, silent = true, remap = false },
+  })
 
   for o, m in pairs(whichkey_initial_map) do
-    local n_mappings =
-      { [n_reg()] = { [m.sql_mapping] = { "<Plug>(sql_" .. o .. ")", m.display } } }
-    which_key.register(n_mappings, n_opts)
+    key = "<leader>" .. n_reg() .. m.sql_mapping
+    which_key.add({
+      {
+        key,
+        "<Plug>(sql_" .. o .. ")",
+        desc = m.display,
+        nowait = true,
+        silent = true,
+        remap = false,
+      },
+    })
   end
 
   for _, m in pairs(whichkey_initial_format_map) do
-    local n_mappings =
-      { [n_reg()] = { F = { [m.sql_mapping] = { "<Plug>(sql_format_slash_toggle)", m.display } } } }
-    which_key.register(n_mappings, n_opts)
+    key = "<leader>" .. n_reg() .. m.sql_mapping
+    which_key.add({
+      {
+        key,
+        "<Plug>(sql_format_slash_toggle)",
+        desc = m.display,
+        nowait = true,
+        silent = true,
+        remap = false,
+      },
+    })
   end
 
   -- visual mode
-  local v_mappings = {
-    [v_reg()] = {
-      name = display_icon .. " Sql",
+  key = "<leader>" .. v_reg()
+  which_key.add({
+    {
+      key,
+      group = display_icon .. " Sql",
+      mode = "v",
+      nowait = true,
+      silent = true,
+      remap = false,
     },
-  }
-  which_key.register(v_mappings, v_opts)
+  })
 
   for o, m in pairs(whichkey_initial_v_map) do
-    local v_mappings =
-      { [v_reg()] = { [m.sql_mapping] = { "<Plug>(sql_" .. o .. ")", m.display } } }
-    which_key.register(v_mappings, v_opts)
+    key = "<leader>" .. v_reg() .. m.sql_mapping
+    which_key.add({
+      {
+        key,
+        "<Plug>(sql_" .. o .. ")",
+        desc = m.display,
+        mode = "v",
+        nowait = true,
+        silent = true,
+        remap = false,
+      },
+    })
   end
 end
 

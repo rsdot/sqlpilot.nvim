@@ -21,8 +21,8 @@ local defaults = {
     query = "z", -- default vim register to store last used query
   },
   which_key_registers = {
-    normal = "f", -- default which-key normal mode key register
-    visual = "f", -- default which-key visual mode key register
+    normal = "D", -- default which-key normal mode key register
+    visual = "D", -- default which-key visual mode key register
   },
 }
 

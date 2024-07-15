@@ -249,8 +249,8 @@ use {
         query = "z"  -- default vim register to store last used query                        -- change to other register if needed
       },
       which_key_registers = {
-        normal = "f", -- default which-key normal mode key register                          -- change to avoid conflicting with existing
-        visual = "f", -- default which-key visual mode key register                          -- change to avoid conflicting with existing
+        normal = "D", -- default which-key normal mode key register                          -- change to avoid conflicting with existing
+        visual = "D", -- default which-key visual mode key register                          -- change to avoid conflicting with existing
       }
     }
   end
@@ -272,8 +272,8 @@ use `sqlpilot.nvim` in LazyVim
          query = "z"  -- default vim register to store last used query                        -- change to other register if needed
        },
        which_key_registers = {
-         normal = "f", -- default which-key normal mode key register                          -- change to avoid conflicting with existing
-         visual = "f", -- default which-key visual mode key register                          -- change to avoid conflicting with existing
+         normal = "D", -- default which-key normal mode key register                          -- change to avoid conflicting with existing
+         visual = "D", -- default which-key visual mode key register                          -- change to avoid conflicting with existing
        }
      },
    }
