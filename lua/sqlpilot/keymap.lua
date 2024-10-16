@@ -22,7 +22,7 @@ local whichkey_initial_map = {
 
 local whichkey_initial_v_map = {
   adhoc_query_result_csv     = { display = display_icon .. " run csv",   sql_mapping = "d", sql_run_command_type = "sql_csv" },
-  adhoc_query_result_cli_raw = { display = display_icon .. " run query", sql_mapping = "f", sql_run_command_type = "sql_cli" },
+  adhoc_query_result_cli_raw = { display = display_icon .. " run query", sql_mapping = "j", sql_run_command_type = "sql_cli" },
 }
 
 local whichkey_initial_format_map = {

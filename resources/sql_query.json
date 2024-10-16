@@ -773,7 +773,7 @@
         "--  server_id,",
         "--  session_id,",
         "--  highest_lsn_rcvd,",
-        "--  cur_replay_latency_in_usec,",
+        "--  replica_lag_in_msec,",
         "--  now(),",
         "--  last_update_timestamp",
         "--from aurora_replica_status();",
